@@ -34,9 +34,28 @@ struct Quad {
 };
 
 class Quadtree {
+private:
 	Quad top_level_quad;//god quad, owns the game world
 
-	//return a list of ids for all objects in surrounding quads and their children
-	//search can be expanded with the level property to higher level quads
-	std::list<uint64_t> return_all_nearby(uint64_t parent_uid, int quad_check_level = 0);
+	//dimensions of top level quad, meters
+	float top_level_quad_size = 1000;
+	//boundy below which to stop generating more quads, meters
+	float bottom_level_quad_boundry = 10;
+public:
+	void generate_tree();
+
+	//return a list of ids for all objects in surrounding quads and their children (surrounding meaning the containing and 8 adjacent quads)
+	//search radius property is used to determine the the highest level of the tree searched, radius of zero means search the whole world
+	//size of top level quads to search at (god quad size / (2 ^ quad level)) >= return_radius
+
+	/* MATHEMATICS
+	(godqsize / (2^quadlevel)) >= retrradi
+
+	godqsize >= retrradi * (2^quadlevel)
+
+	(godqsize / retrradi) >= 2^quadlevel
+
+	log2(godqsize / retrradi) >= quadlevel
+	*/
+	std::list<uint64_t> return_all_nearby(uint64_t parent_uid, int return_radius = 0);
 };
