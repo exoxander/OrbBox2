@@ -16,4 +16,5 @@ public:
 
 	int16_t get_uid() { return uid; }
 	std::vector<GameModule>& get_modules();
+	GameModule* get_module_by_type(GameModuleType type);//only returns the first found, best be specific
 };
