@@ -130,6 +130,7 @@ void GameObjectManger::destroy_game_object(GameObject* _object) {
 //requires refactoring, currently recursively checks parents and children until the object is found or the top level quad is hit
 Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool _allow_up_search) {
 	Quad* start_quad;
+	Quad* result = nullptr;
 
 	//if no starting point is supplied start at the top level quad
 	if (_starting_quad == nullptr) {
@@ -148,7 +149,7 @@ Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool
 		}
 		else {
 			for (int quad = 0; quad < 4; quad++) {
-				Quad* result = get_inside(_world_coordinant, start_quad->children[quad], false);
+				result = get_inside(_world_coordinant, start_quad->children[quad], false);
 				if ( result != nullptr) {
 					return result;
 				}
@@ -160,8 +161,8 @@ Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool
 	}
 	else if(_allow_up_search) {
 		//check parent, recursive
-		get_inside(_world_coordinant, start_quad->parent);
+		result = get_inside(_world_coordinant, start_quad->parent);
 	}
 
-	return nullptr;
+	return result;
 }
