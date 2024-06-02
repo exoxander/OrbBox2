@@ -10,21 +10,24 @@ struct GameObjectContainer {
 
 	//link back to the quad tree
 	//ignore these for static objects
-	std::list<GameObjectContainer*>* quad_owner_list;
+	Quad* tree_owner;
 	std::list<GameObjectContainer*>::iterator owner_list_iterator;
 
 	GameObjectContainer();
 };
 //QuadTree
+enum quad_orientation{a,b,c,d};
+
 /* https://www.youtube.com/watch?v=wXF3HIhnUOg&list=WL&index=11&t=1172s */
 struct Quad {
 	std::list<GameObjectContainer*> game_object_list;
 	int level;//depth in the tree starting at 0 for world quad
+	Quad* parent;
+	quad_orientation orientation;
 
-	Quad* a;
-	Quad* b;
-	Quad* c;
-	Quad* d;
+	Quad* children[4] = {nullptr,nullptr,nullptr,nullptr};
+
+	bool check_inside(fvector _world_coordinant);
 
 	//list<t,allocator>::splice
 	//return immediate children
@@ -45,9 +48,12 @@ private:
 public:
 	QuadTree(float _top_size, float _bottom_boundry) { top_level_quad_size = _top_size; bottom_level_quad_boundry = _bottom_boundry; }
 	void insert_object(GameObjectContainer* _container);
-	void remove_object(std::list<GameObjectContainer*>* _list_ptr, std::list<GameObjectContainer*>::iterator _container_itr);
+	void remove_object(Quad* _tree_quad, std::list<GameObjectContainer*>::iterator _container_itr);
 	void move_object();
 	void generate_tree();
+
+	//get which quad this coordinant falls into, optionally starting from a known point inside the tree
+	Quad* get_inside(fvector _world_coordinant, Quad* _start_point = nullptr, bool _allow_up_search = true);
 
 	//return a list of ids for all objects in surrounding quads and their children (surrounding meaning the containing and 8 adjacent quads)
 	//search radius property is used to determine the the highest level of the tree searched, radius of zero means search the whole world
@@ -81,11 +87,14 @@ private:
 	uint64_t next_uid_counter;
 
 public:
+	uint64_t hash(uint64_t _uid) { return _uid % prime_hash_value; }
+
+	//look into replacing with with a red-black tree structure, O[log2(n)] vs O[n]
 	std::list<GameObjectContainer>* object_hash_array = new std::list<GameObjectContainer>[hash_array_size];
 	QuadTree world_tree = QuadTree(1024, 10);
 
 	GameObject create_game_object();
-	void insert_new_game_object(GameObject _object, bool _is_static);// hash_array[uid % prime_hash_value]
+	void insert_new_game_object(GameObject _object, bool _is_static);
 	GameObject* get_game_object(uint64_t _uid);
 	void destroy_game_object(uint64_t _uid);
 	void destroy_game_object(GameObject* _object);
@@ -96,6 +105,6 @@ public:
 	//on step trigger list
 	std::list<TriggerModule*> on_step_check;
 	//on step after trigger list
-	std::list<TriggerModule*> after_on_step_check;
+	std::list<TriggerModule*> on_step_after_check;
 
 };

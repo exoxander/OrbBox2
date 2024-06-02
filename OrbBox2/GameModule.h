@@ -23,7 +23,7 @@ public:
 };
 
 //---------------------------------< Trigger Modules >----------------------------------------
-enum trigger_check_type {on_frame_update, on_step, on_after_step, other};
+enum trigger_check_type {on_frame_update, on_step, on_step_after, other};
 //triggers get sent into check queues for processing in world
 //check only on frame update, check on every game step, check on step *after* the other set, other special one in case
 
