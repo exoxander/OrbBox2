@@ -147,7 +147,7 @@ void Quad::create_children(uint8_t _level_limit) {
 
 		//a
 		next_child_center = center + fvector(-child_radius, -child_radius);
-		children[0] = new Quad(level++,next_child_center, child_radius);
+		children[0] = new Quad(level++, next_child_center, child_radius);
 
 		//b
 		next_child_center = center + fvector(child_radius, -child_radius);
@@ -168,28 +168,28 @@ void Quad::create_children(uint8_t _level_limit) {
 	}
 }
 
-//quad tree
-void QuadTree::generate_tree() {
-	top_level_quad = Quad(0, fvector(), top_level_quad_size / 2);
-	//topsize / (2^level) = levelsize
-	tree_level_limit = floor(log2f(top_level_quad_size / bottom_level_quad_boundry));
-
-	//create the universe
-	top_level_quad.create_children(tree_level_limit);
-}
-
 bool Quad::check_inside(fvector _world_coordinant) {
 	fvector relative_position = center - _world_coordinant;
 	//check x
-	if (relative_position.x < manhattan_radius && relative_position.x > -manhattan_radius) {
+	if (relative_position.x <= manhattan_radius && relative_position.x > -manhattan_radius) {
 		//check y
-		if (relative_position.y < manhattan_radius && relative_position.y > -manhattan_radius) {
+		if (relative_position.y <= manhattan_radius && relative_position.y > -manhattan_radius) {
 			return true;
 		}
 	}
 	return false;
 }
 
+//quad tree
+void QuadTree::generate_tree() {
+	top_level_quad = Quad(0, fvector(), top_level_quad_size / 2);
+	//topsize / (2^level) = levelsize
+	//log2(topsize/minsize) >= level
+	tree_level_limit = floor(log2f(top_level_quad_size / bottom_level_quad_boundry));
+
+	//create the universe
+	top_level_quad.create_children(tree_level_limit);
+}
 //return a pointer to whichever bottom level quad owns the input coordinant
 //requires refactoring, currently recursively checks parents and children until the object is found or the top level quad is hit
 Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool _allow_up_search) {
