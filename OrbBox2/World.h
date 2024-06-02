@@ -16,24 +16,35 @@ struct GameObjectContainer {
 	GameObjectContainer();
 };
 //QuadTree
-enum quad_orientation{a,b,c,d};
+//enum quad_orientation{a,b,c,d};
 
 /* https://www.youtube.com/watch?v=wXF3HIhnUOg&list=WL&index=11&t=1172s */
-struct Quad {
-	std::list<GameObjectContainer*> game_object_list;
-	int level;//depth in the tree starting at 0 for world quad
+class Quad {
+private:
+	//depth in the tree starting at 0 for world quad
+	uint8_t level;
+	float manhattan_radius;
+	fvector center;
+public:
 	Quad* parent;
-	quad_orientation orientation;
+	//quad_orientation orientation;
 
 	Quad* children[4] = {nullptr,nullptr,nullptr,nullptr};
 
-	bool check_inside(fvector _world_coordinant);
+	//owned items list
+	std::list<GameObjectContainer*> game_object_list;
 
 	//list<t,allocator>::splice
 	//return immediate children
 	std::list<std::list<GameObjectContainer*>::iterator> return_owned_objects();
 	//returns all children, searched recursively
 	std::list<std::list<GameObjectContainer*>::iterator> return_all_owned_objects();
+
+	bool check_inside(fvector _world_coordinant);
+	void create_children(uint8_t _level_limit);
+	Quad();
+	Quad(uint8_t _level, fvector _center, float _manhattan_radius);
+	~Quad();
 };
 
 class QuadTree {
@@ -43,7 +54,9 @@ private:
 	//dimensions of top level quad, meters, recommend keeping as power of 2 for nice division
 	float top_level_quad_size = 1024;
 	//boundy below which to stop generating more quads, meters
-	float bottom_level_quad_boundry = 10;
+	float bottom_level_quad_boundry = 8;
+	//computed INCLUSIVE limit for depth based on quad boundry
+	int tree_level_limit = 0;
 
 public:
 	QuadTree(float _top_size, float _bottom_boundry) { top_level_quad_size = _top_size; bottom_level_quad_boundry = _bottom_boundry; }

@@ -1,5 +1,5 @@
 #include "World.h"
-
+#include <math.h>
 //object hash table
 
 //create a new clean object with a unique 64 bit identifier
@@ -124,7 +124,71 @@ void GameObjectManger::destroy_game_object(GameObject* _object) {
 	destroy_game_object(_object->get_uid());
 }
 
+//quad
+Quad::Quad(uint8_t _level, fvector _center, float _manhattan_radius) {
+	level = _level;
+	center = _center;
+	manhattan_radius = _manhattan_radius;
+}
+
+Quad::~Quad() {
+	//recursively kill all children
+	for (int quad = 0; quad < 4; quad++) {
+		delete children[quad];
+	}
+}
+
+void Quad::create_children(uint8_t _level_limit) {
+	//check level limit
+	if (level <= _level_limit) {
+		//clockwise: top left--, top right+-, bottom right++, bottom left-+
+		float child_radius = manhattan_radius / 2;
+		fvector next_child_center = fvector();
+
+		//a
+		next_child_center = center + fvector(-child_radius, -child_radius);
+		children[0] = new Quad(level++,next_child_center, child_radius);
+
+		//b
+		next_child_center = center + fvector(child_radius, -child_radius);
+		children[0] = new Quad(level++, next_child_center, child_radius);
+
+		//c
+		next_child_center = center + fvector(child_radius, child_radius);
+		children[0] = new Quad(level++, next_child_center, child_radius);
+
+		//d
+		next_child_center = center + fvector(-child_radius, child_radius);
+		children[0] = new Quad(level++, next_child_center, child_radius);
+
+		//recursively create children
+		for (int quad = 0; quad < 4; quad++) {
+			children[quad]->create_children(_level_limit);
+		}
+	}
+}
+
 //quad tree
+void QuadTree::generate_tree() {
+	top_level_quad = Quad(0, fvector(), top_level_quad_size / 2);
+	//topsize / (2^level) = levelsize
+	tree_level_limit = floor(log2f(top_level_quad_size / bottom_level_quad_boundry));
+
+	//create the universe
+	top_level_quad.create_children(tree_level_limit);
+}
+
+bool Quad::check_inside(fvector _world_coordinant) {
+	fvector relative_position = center - _world_coordinant;
+	//check x
+	if (relative_position.x < manhattan_radius && relative_position.x > -manhattan_radius) {
+		//check y
+		if (relative_position.y < manhattan_radius && relative_position.y > -manhattan_radius) {
+			return true;
+		}
+	}
+	return false;
+}
 
 //return a pointer to whichever bottom level quad owns the input coordinant
 //requires refactoring, currently recursively checks parents and children until the object is found or the top level quad is hit
@@ -160,7 +224,7 @@ Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool
 		//OBJECT OUT OF WORLD BOUNDS
 	}
 	else if(_allow_up_search) {
-		//check parent, recursive
+		//up search to parent
 		result = get_inside(_world_coordinant, start_quad->parent);
 	}
 
