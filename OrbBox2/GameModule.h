@@ -6,6 +6,7 @@
 
 //forward declare GameObjectManager
 class GameObjectManager;
+class GameObject;
 
 enum top_level_type{undefined,trigger};
 enum game_module_type{
@@ -18,17 +19,17 @@ enum game_module_type{
 
 class GameModule{
 private:
-	uint64_t parent_uid;
+	GameObject* parent_ptr;
 	int16_t meta;
 
 public:
-	GameModule(uint64_t _parent_uid, int16_t _meta = 0) {
-		parent_uid = _parent_uid;
+	GameModule(GameObject* _parent_ptr, int16_t _meta = 0) {
+		parent_ptr = _parent_ptr;
 		meta = _meta;
 	};
 
-	uint64_t get_parent_uid() { return parent_uid; }
 	int16_t get_meta() { return meta; }
+	GameObject* get_parent_ptr() { return parent_ptr; }
 	virtual game_module_type get_module_type_name() { return game_module_type::undefined; }
 	virtual top_level_type get_top_level_type_name() { return top_level_type::undefined; }
 };
@@ -58,6 +59,11 @@ public:
 	void trigger();
 	void set_list_position(std::list<TriggerModule*>::iterator _iterator) { trigger_list_iterator = _iterator; }
 	trigger_check_type get_check_type() { return trigger_type; }
+
+	//always run this code whenever the appropriate check list is being run through
+	virtual void always_activate();
+
+	//specifically check the trigger condition, use inside always activate
 	virtual bool check_trigger();
 
 	//on delete, remove self from the trigger lists
@@ -138,6 +144,7 @@ public:
 		:TriggerModule(_parent_uid, _allow_reset, on_frame_update) {
 		//do nothing special
 	}
+	void always_activate();
 	void set_position_to_mouse(GameObjectManager* _game_manager);
 };
 
@@ -147,5 +154,6 @@ public:
 		:TriggerModule(_parent_uid, _allow_reset, on_after_step) {
 		//do nothing
 	}
+	void always_activate();
 	void draw_all_quad_parents(GameObjectManager* _game_manager);
 };

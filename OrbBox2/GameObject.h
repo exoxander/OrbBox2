@@ -3,6 +3,7 @@
 #include "GameModule.cpp"
 #include "Vectors.h"
 #include "list"
+class GameObjectManager;
 
 class GameObject
 {
@@ -10,15 +11,16 @@ private:
 	uint64_t uid;
 	std::vector<GameModule> modules;
 	std::vector<TriggerModule> triggers;
+	GameObjectManager* gm_ptr;
 
 public:
 	int16_t meta;
 	ivector screen_position;
 	fvector world_position;
 
-	GameObject(uint64_t _uid) { uid = _uid; };
+	GameObject(uint64_t _uid, GameObjectManager* _gm_ptr) { uid = _uid; gm_ptr = _gm_ptr; };
 	void add_module(GameModule _module);
-
+	GameObjectManager* get_manager_ptr() { return gm_ptr; }
 	//call destroy on all modules
 	~GameObject();
 

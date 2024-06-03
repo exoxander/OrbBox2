@@ -24,5 +24,6 @@ public:
 	int y;
 
 	ivector(int a = 0, int b = 0) { x = a; y = b; }
+	ivector(fvector _input) { x = static_cast<int>(_input.x); y = static_cast<int>(_input.y); }
 };
 
