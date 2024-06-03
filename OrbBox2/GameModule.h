@@ -1,6 +1,12 @@
 #pragma once
 #include "Vectors.h"
 
+//for some ungodly reason intellisense has an anyurism when theres only one include statement in this file
+#include <list>
+
+//forward declare GameObjectManager
+class GameObjectManager;
+
 enum top_level_type{undefined,trigger};
 enum game_module_type{
 	undefined,basic_trigger,key_input_trigger,
@@ -10,8 +16,7 @@ enum game_module_type{
 };
 
 
-class GameModule
-{
+class GameModule{
 private:
 	uint64_t parent_uid;
 	int16_t meta;
@@ -33,7 +38,7 @@ enum trigger_check_type {on_frame_update, on_step, on_after_step, other};
 //triggers get sent into check queues for processing in world
 //check only on frame update, check on every game step, check on step *after* the other set, other special one in case
 
-class TriggerModule : GameModule {
+class TriggerModule : public GameModule {
 protected:
 	bool is_triggered;
 	bool allow_reset;
@@ -69,7 +74,7 @@ public:
 };
 
 //---------------------------------< Colliders >-----------------------------------------
-class ColliderModule : TriggerModule {
+class ColliderModule : public TriggerModule {
 protected:
 	enum collider_type { none, simple_circle, mesh };
 	collider_type type;
@@ -80,7 +85,7 @@ public:
 	bool check_trigger();
 };
 
-class CircleCollider : ColliderModule{
+class CircleCollider : public ColliderModule{
 protected:
 	float radius;
 
@@ -91,7 +96,7 @@ public:
 
 };
 
-class MeshCollider : ColliderModule {
+class MeshCollider : public ColliderModule {
 protected:
 	//mesh structure
 public:
@@ -99,7 +104,7 @@ public:
 };
 
 //---------------------------------< Physics Body >-------------------------------------------
-class PhysicsBody : GameModule {
+class PhysicsBody : public GameModule {
 public:
 	game_module_type get_module_type_name() { return game_module_type::physics_body; }
 	float mass;
@@ -109,7 +114,7 @@ public:
 
 //---------------------------------< Sprite and Animation >-----------------------------------
 //https://github.com/OneLoneCoder/olcPixelGameEngine/wiki/TUTORIAL---Sprites
-class Sprite : GameModule {
+class Sprite : public GameModule {
 public:
 	game_module_type get_module_type_name() { return game_module_type::sprite; }
 };
@@ -118,7 +123,7 @@ struct Animation {
 	float duration;//in seconds
 	bool allow_interrupt;
 };
-class AnimationController : GameModule {
+class AnimationController : public GameModule {
 	//list of animations (containing lists of sprites)
 	//list of associated animation triggers
 public:
@@ -127,20 +132,20 @@ public:
 
 
 //==========================< testing junk >======================================
-class MouseFollowModule : TriggerModule {
+class MouseFollowModule : public TriggerModule {
 public:
 	MouseFollowModule(uint64_t _parent_uid, bool _allow_reset)
 		:TriggerModule(_parent_uid, _allow_reset, on_frame_update) {
 		//do nothing special
 	}
-	void set_position_to_mouse();
+	void set_position_to_mouse(GameObjectManager* _game_manager);
 };
 
-class DrawQuadLineage :TriggerModule {
+class DrawQuadLineage : public TriggerModule {
 public:
 	DrawQuadLineage(uint64_t _parent_uid, bool _allow_reset)
 		:TriggerModule(_parent_uid, _allow_reset, on_after_step) {
 		//do nothing
 	}
-	void draw_all_quad_parents();
+	void draw_all_quad_parents(GameObjectManager* _game_manager);
 };

@@ -1,11 +1,13 @@
 #include "GameModule.h"
+//forward declarations
+class GameObjectManager;
+class Quad;
+struct GameObjectContainer;
+class PixelGameEngine;
+
 //game modules
 
 //trigger modules
 
 //physics module
 
-//testing modules
-void MouseFollowModule::set_position_to_mouse() {
-	
-}

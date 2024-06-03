@@ -3,7 +3,7 @@
 //object hash table
 
 //create a new clean object with a unique 64 bit identifier
-GameObject GameObjectManger::create_game_object() {
+GameObject GameObjectManager::create_game_object() {
 	uint64_t valid_uid = 0;
 
 	if (next_uid_counter == 0) {
@@ -30,7 +30,7 @@ GameObject GameObjectManger::create_game_object() {
 };
 
 //add an existing completed object and its trigger modules into the hash table and trigger lists
-void GameObjectManger::insert_new_game_object(GameObject _object, bool _is_static) {
+void GameObjectManager::insert_new_game_object(GameObject _object, bool _is_static) {
 	GameObjectContainer new_container = GameObjectContainer();
 
 	new_container.item = _object;
@@ -70,7 +70,7 @@ void GameObjectManger::insert_new_game_object(GameObject _object, bool _is_stati
 }
 
 //get an object by its uid
-GameObject* GameObjectManger::get_game_object(uint64_t _uid) {
+GameObject* GameObjectManager::get_game_object(uint64_t _uid) {
 	uint64_t hashed_id = hash(_uid);
 	std::list<GameObjectContainer>::iterator list_iterator = object_hash_array[hashed_id].begin();
 	std::list<GameObjectContainer>::iterator list_end = object_hash_array[hashed_id].end();
@@ -86,8 +86,24 @@ GameObject* GameObjectManger::get_game_object(uint64_t _uid) {
 	return nullptr;
 }
 
+//get an objects container by its uid
+GameObjectContainer* GameObjectManager::get_object_container(uint64_t _uid) {
+	uint64_t hashed_id = hash(_uid);
+	std::list<GameObjectContainer>::iterator list_iterator = object_hash_array[hashed_id].begin();
+	std::list<GameObjectContainer>::iterator list_end = object_hash_array[hashed_id].end();
+
+	while (list_iterator != list_end) {
+		if (list_iterator->item.get_uid() == _uid) {
+			return &*list_iterator;
+		}
+		std::advance(list_iterator, 1);
+	}
+
+	return nullptr;
+}
+
 //destroy the object and reclaim the UID
-void GameObjectManger::destroy_game_object(uint64_t _uid) {
+void GameObjectManager::destroy_game_object(uint64_t _uid) {
 	uint64_t hashed_id = hash(_uid);
 	std::list<GameObjectContainer>::iterator list_iterator = object_hash_array[hashed_id].begin();
 	std::list<GameObjectContainer>::iterator list_end = object_hash_array[hashed_id].end();
@@ -119,7 +135,7 @@ void GameObjectManger::destroy_game_object(uint64_t _uid) {
 	object_hash_array[hashed_id].erase(list_iterator);
 }
 
-void GameObjectManger::destroy_game_object(GameObject* _object) {
+void GameObjectManager::destroy_game_object(GameObject* _object) {
 	//need to use the UID for container access
 	destroy_game_object(_object->get_uid());
 }

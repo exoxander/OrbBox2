@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "GameModule.h"
+#include "GameModule.cpp"
 #include "Vectors.h"
 #include "list"
 

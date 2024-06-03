@@ -1,8 +1,9 @@
 #pragma once
-#include "GameObject.h"
+#include "GameObject.cpp"
 #include "Utilities.h"
 #include <list>
 #include <queue>
+#include "olcPixelGameEngine.h"
 
 //world space
 struct GameObjectContainer {
@@ -20,12 +21,12 @@ struct GameObjectContainer {
 
 /* https://www.youtube.com/watch?v=wXF3HIhnUOg&list=WL&index=11&t=1172s */
 class Quad {
-private:
+public:
 	//depth in the tree starting at 0 for world quad
 	uint8_t level;
 	float manhattan_radius;
 	fvector center;
-public:
+
 	Quad* parent;
 	//quad_orientation orientation;
 
@@ -86,7 +87,7 @@ public:
 
 
 //global object hash
-class GameObjectManger {
+class GameObjectManager {
 private:
 	const int hash_array_size = 4096;
 	const int prime_hash_value = 4093;
@@ -99,8 +100,11 @@ private:
 	std::queue<uint64_t> id_recycle_queue;
 	uint64_t next_uid_counter;
 	float internal_tick_rate = (1.0 / 64.0);
+	bool is_new_frame = false;
 
 public:
+	void new_frame_ready() { is_new_frame = true; };
+	olc::PixelGameEngine* internal_pge;
 	uint64_t hash(uint64_t _uid) { return _uid % prime_hash_value; }
 
 	//look into replacing with with a red-black tree structure, O[log2(n)] vs O[n]
@@ -109,7 +113,10 @@ public:
 
 	GameObject create_game_object();
 	void insert_new_game_object(GameObject _object, bool _is_static);
+
 	GameObject* get_game_object(uint64_t _uid);
+	GameObjectContainer* get_object_container(uint64_t _uid);
+
 	void destroy_game_object(uint64_t _uid);
 	void destroy_game_object(GameObject* _object);
 
