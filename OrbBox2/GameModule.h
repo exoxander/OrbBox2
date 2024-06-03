@@ -17,13 +17,19 @@ private:
 	int16_t meta;
 
 public:
+	GameModule(uint64_t _parent_uid, int16_t _meta = 0) {
+		parent_uid = _parent_uid;
+		meta = _meta;
+	};
+
 	uint64_t get_parent_uid() { return parent_uid; }
+	int16_t get_meta() { return meta; }
 	virtual game_module_type get_module_type_name() { return game_module_type::undefined; }
 	virtual top_level_type get_top_level_type_name() { return top_level_type::undefined; }
 };
 
 //---------------------------------< Trigger Modules >----------------------------------------
-enum trigger_check_type {on_frame_update, on_step, on_step_after, other};
+enum trigger_check_type {on_frame_update, on_step, on_after_step, other};
 //triggers get sent into check queues for processing in world
 //check only on frame update, check on every game step, check on step *after* the other set, other special one in case
 
@@ -31,16 +37,22 @@ class TriggerModule : GameModule {
 protected:
 	bool is_triggered;
 	bool allow_reset;
-	trigger_check_type check_type;
+	trigger_check_type trigger_type;
 	std::list<TriggerModule*>::iterator trigger_list_iterator;
 
 public:
+	TriggerModule(uint64_t _parent_uid, bool _allow_reset, trigger_check_type _trigger_type)
+		:GameModule(_parent_uid) {
+		allow_reset = _allow_reset;
+		trigger_type = _trigger_type;
+	};
+
 	game_module_type get_module_type_name() { return game_module_type::basic_trigger; }
 	top_level_type get_top_level_type_name() { return top_level_type::trigger; }
 	void reset();
 	void trigger();
 	void set_list_position(std::list<TriggerModule*>::iterator _iterator) { trigger_list_iterator = _iterator; }
-	trigger_check_type get_check_type() { return check_type; }
+	trigger_check_type get_check_type() { return trigger_type; }
 	virtual bool check_trigger();
 
 	//on delete, remove self from the trigger lists
@@ -113,3 +125,22 @@ public:
 	game_module_type get_module_type_name() { return game_module_type::animation_controller; }
 };
 
+
+//==========================< testing junk >======================================
+class MouseFollowModule : TriggerModule {
+public:
+	MouseFollowModule(uint64_t _parent_uid, bool _allow_reset)
+		:TriggerModule(_parent_uid, _allow_reset, on_frame_update) {
+		//do nothing special
+	}
+	void set_position_to_mouse();
+};
+
+class DrawQuadLineage :TriggerModule {
+public:
+	DrawQuadLineage(uint64_t _parent_uid, bool _allow_reset)
+		:TriggerModule(_parent_uid, _allow_reset, on_after_step) {
+		//do nothing
+	}
+	void draw_all_quad_parents();
+};

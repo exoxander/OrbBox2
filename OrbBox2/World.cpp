@@ -57,7 +57,7 @@ void GameObjectManger::insert_new_game_object(GameObject _object, bool _is_stati
 		}
 
 		//on after step
-		if (triggers->at(index).get_check_type() == on_step_after) {
+		if (triggers->at(index).get_check_type() == on_after_step) {
 			on_step_after_check.push_back(&triggers->at(index));
 			triggers->at(index).set_list_position(on_step_after_check.end());
 		}

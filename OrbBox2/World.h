@@ -98,6 +98,7 @@ private:
 	//recycle the ids of dead objects, preferentially use these vs generating new uids
 	std::queue<uint64_t> id_recycle_queue;
 	uint64_t next_uid_counter;
+	float internal_tick_rate = (1.0 / 64.0);
 
 public:
 	uint64_t hash(uint64_t _uid) { return _uid % prime_hash_value; }
