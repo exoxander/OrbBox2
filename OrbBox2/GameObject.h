@@ -9,8 +9,8 @@ class GameObject
 {
 private:
 	uint64_t uid;
-	std::vector<GameModule> modules;
-	std::vector<TriggerModule> triggers;
+	std::vector<GameModule> object_modules;
+	std::vector<TriggerModule> object_triggers;
 	GameObjectManager* gm_ptr;
 
 public:
@@ -20,6 +20,7 @@ public:
 
 	GameObject(uint64_t _uid, GameObjectManager* _gm_ptr) { uid = _uid; gm_ptr = _gm_ptr; };
 	void add_module(GameModule _module);
+	void add_trigger(TriggerModule _module);
 	GameObjectManager* get_manager_ptr() { return gm_ptr; }
 	//call destroy on all modules
 	~GameObject();

@@ -8,7 +8,7 @@ GameObject GameObjectManager::create_game_object() {
 
 	if (next_uid_counter == 0) {
 		next_uid_counter++;
-		return GameObject(valid_uid);
+		return GameObject(valid_uid, this);
 	}
 	else if (next_uid_counter == UINT64_MAX) {
 		//lets be real
@@ -26,7 +26,7 @@ GameObject GameObjectManager::create_game_object() {
 		}
 	}
 
-	return GameObject(valid_uid);
+	return GameObject(valid_uid, this);
 };
 
 //add an existing completed object and its trigger modules into the hash table and trigger lists
@@ -45,7 +45,7 @@ void GameObjectManager::insert_new_game_object(GameObject _object, bool _is_stat
 	for (int index = 0; index < triggers->size(); index++) {
 
 		//on frame update
-		if (triggers->at(index).get_check_type() == on_frame_update) {
+		if (triggers->at(index).get_check_type() == on_new_frame) {
 			on_frame_check.push_back(&triggers->at(index));
 			triggers->at(index).set_list_position(on_frame_check.end());
 		}
@@ -154,36 +154,6 @@ Quad::~Quad() {
 	}
 }
 
-void Quad::create_children(uint8_t _level_limit) {
-	//check level limit
-	if (level <= _level_limit) {
-		//clockwise: top left--, top right+-, bottom right++, bottom left-+
-		float child_radius = manhattan_radius / 2;
-		fvector next_child_center = fvector();
-
-		//a
-		next_child_center = center + fvector(-child_radius, -child_radius);
-		children[0] = new Quad(level++, next_child_center, child_radius);
-
-		//b
-		next_child_center = center + fvector(child_radius, -child_radius);
-		children[0] = new Quad(level++, next_child_center, child_radius);
-
-		//c
-		next_child_center = center + fvector(child_radius, child_radius);
-		children[0] = new Quad(level++, next_child_center, child_radius);
-
-		//d
-		next_child_center = center + fvector(-child_radius, child_radius);
-		children[0] = new Quad(level++, next_child_center, child_radius);
-
-		//recursively create children
-		for (int quad = 0; quad < 4; quad++) {
-			children[quad]->create_children(_level_limit);
-		}
-	}
-}
-
 bool Quad::check_inside(fvector _world_coordinant) {
 	fvector relative_position = center - _world_coordinant;
 	//check x
@@ -196,6 +166,36 @@ bool Quad::check_inside(fvector _world_coordinant) {
 	return false;
 }
 
+void Quad::create_children(uint8_t _level_limit) {
+
+	//clockwise: top left--, top right+-, bottom right++, bottom left-+
+	float child_radius = manhattan_radius / 2;
+	fvector next_child_center = fvector();
+
+	//a
+	next_child_center = center + fvector(-child_radius, -child_radius);
+	children[0] = new Quad(level++, next_child_center, child_radius);
+
+	//b
+	next_child_center = center + fvector(child_radius, -child_radius);
+	children[1] = new Quad(level++, next_child_center, child_radius);
+
+	//c
+	next_child_center = center + fvector(child_radius, child_radius);
+	children[2] = new Quad(level++, next_child_center, child_radius);
+
+	//d
+	next_child_center = center + fvector(-child_radius, child_radius);
+	children[3] = new Quad(level++, next_child_center, child_radius);
+
+	//check level limit, create grandchildren if level value allows
+	if (level < _level_limit) {
+		for (int quad = 0; quad < 4; quad++) {
+			children[quad]->create_children(_level_limit);
+		}
+	}
+}
+
 //quad tree
 void QuadTree::generate_tree() {
 	top_level_quad = Quad(0, fvector(), top_level_quad_size / 2);
@@ -206,6 +206,7 @@ void QuadTree::generate_tree() {
 	//create the universe
 	top_level_quad.create_children(tree_level_limit);
 }
+
 //return a pointer to whichever bottom level quad owns the input coordinant
 //requires refactoring, currently recursively checks parents and children until the object is found or the top level quad is hit
 Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool _allow_up_search) {

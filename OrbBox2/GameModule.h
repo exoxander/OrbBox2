@@ -8,7 +8,7 @@
 class GameObjectManager;
 class GameObject;
 
-enum top_level_type{undefined,trigger};
+//enum top_level_type{undef_trigger,trigger};
 enum game_module_type{
 	undefined,basic_trigger,key_input_trigger,
 	collider_trigger,circle_collider_trigger,mesh_collider_trigger,
@@ -30,12 +30,16 @@ public:
 
 	int16_t get_meta() { return meta; }
 	GameObject* get_parent_ptr() { return parent_ptr; }
+
+	//allows setting the parent, only sets if the existing value is nullptr
+	void set_parent(GameObject* _parent_ptr);
+
 	virtual game_module_type get_module_type_name() { return game_module_type::undefined; }
-	virtual top_level_type get_top_level_type_name() { return top_level_type::undefined; }
+	//virtual top_level_type get_top_level_type_name() { return top_level_type::undefined; }
 };
 
 //---------------------------------< Trigger Modules >----------------------------------------
-enum trigger_check_type {on_frame_update, on_step, on_after_step, other};
+enum trigger_check_type {on_new_frame, on_step, on_after_step, other};
 //triggers get sent into check queues for processing in world
 //check only on frame update, check on every game step, check on step *after* the other set, other special one in case
 
@@ -47,14 +51,14 @@ protected:
 	std::list<TriggerModule*>::iterator trigger_list_iterator;
 
 public:
-	TriggerModule(uint64_t _parent_uid, bool _allow_reset, trigger_check_type _trigger_type)
-		:GameModule(_parent_uid) {
+	TriggerModule(GameObject* _parent_ptr, bool _allow_reset, trigger_check_type _trigger_type)
+		:GameModule(_parent_ptr) {
 		allow_reset = _allow_reset;
 		trigger_type = _trigger_type;
 	};
 
 	game_module_type get_module_type_name() { return game_module_type::basic_trigger; }
-	top_level_type get_top_level_type_name() { return top_level_type::trigger; }
+	//top_level_type get_top_level_type_name() { return top_level_type::trigger; }
 	void reset();
 	void trigger();
 	void set_list_position(std::list<TriggerModule*>::iterator _iterator) { trigger_list_iterator = _iterator; }
@@ -140,8 +144,8 @@ public:
 //==========================< testing junk >======================================
 class MouseFollowModule : public TriggerModule {
 public:
-	MouseFollowModule(uint64_t _parent_uid, bool _allow_reset)
-		:TriggerModule(_parent_uid, _allow_reset, on_frame_update) {
+	MouseFollowModule(GameObject* _parent_ptr, bool _allow_reset)
+		:TriggerModule(_parent_ptr, _allow_reset, on_new_frame) {
 		//do nothing special
 	}
 	void always_activate();
@@ -150,8 +154,8 @@ public:
 
 class DrawQuadLineage : public TriggerModule {
 public:
-	DrawQuadLineage(uint64_t _parent_uid, bool _allow_reset)
-		:TriggerModule(_parent_uid, _allow_reset, on_after_step) {
+	DrawQuadLineage(GameObject* _parent_ptr, bool _allow_reset)
+		:TriggerModule(_parent_ptr, _allow_reset, on_after_step) {
 		//do nothing
 	}
 	void always_activate();

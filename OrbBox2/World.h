@@ -68,6 +68,7 @@ public:
 
 	//get which quad this coordinant falls into, optionally starting from a known point inside the tree
 	Quad* get_inside(fvector _world_coordinant, Quad* _start_point = nullptr, bool _allow_up_search = true);
+	Quad* get_top_level_quad() { return &top_level_quad; }
 
 	//return a list of ids for all objects in surrounding quads and their children (surrounding meaning the containing and 8 adjacent quads)
 	//search radius property is used to determine the the highest level of the tree searched, radius of zero means search the whole world
