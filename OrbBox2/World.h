@@ -27,12 +27,6 @@ struct DistanceDescriminator :public DescriminatorInfo {
 	DistanceDescriminator(fvector _point, float _radius) { compare_point = _point; radius = _radius; }
 };
 
-//check nothing, return everything, get_and_splice_objects() defaults to this
-bool check_none(GameObjectContainer* _container, DescriminatorInfo* _info) { return true; }
-
-//return only items that are within the radius of the distance descriminators center point
-//the inquisitee is the object being filtered, the _info centerpoint is the reference for the distance search
-bool check_inside_range(GameObjectContainer* _inquisitee, DistanceDescriminator* _info);
 
 //QuadTree
 //enum quad_orientation{a,b,c,d};

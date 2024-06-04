@@ -1,7 +1,28 @@
 #include "World.h"
 #include <math.h>
-//object hash table
 
+#pragma region discriminators
+//quad tree discriminator functions
+
+//check nothing, return everything, get_and_splice_objects() defaults to this
+bool check_none(GameObjectContainer* _container, DescriminatorInfo* _info) { return true; }
+
+//return only items that are within the radius of the distance descriminators center point
+//the inquisitee is the object being filtered, the _info centerpoint is the reference for the distance search
+bool check_inside_range(GameObjectContainer* _inquisitee, DistanceDescriminator* _info) {
+	fvector ref_point = _info->compare_point;
+	fvector item_point = _inquisitee->item.world_position;
+	float x = ref_point.x - item_point.x;
+	float y = ref_point.y - item_point.y;
+
+	if (_info->radius >= sqrt((x * x) + (y * y))) {
+		return true;
+	}
+	return false;
+}
+#pragma endregion search discriminator functions
+
+#pragma region game_object_manager
 //create a new clean object with a unique 64 bit identifier
 GameObject GameObjectManager::create_game_object() {
 	uint64_t valid_uid = 0;
@@ -139,7 +160,9 @@ void GameObjectManager::destroy_game_object(GameObject* _object) {
 	//need to use the UID for container access
 	destroy_game_object(_object->get_uid());
 }
+#pragma endregion all GameObjectManager functions
 
+#pragma region Quad
 //quad
 Quad::Quad(uint8_t _level, fvector _center, float _manhattan_radius) {
 	level = _level;
@@ -196,7 +219,9 @@ void Quad::create_children(uint8_t _level_limit) {
 		}
 	}
 }
+#pragma endregion all Quad functions
 
+#pragma region QuadTree
 //quad tree
 void QuadTree::generate_tree() {
 	top_level_quad = Quad(0, fvector(), top_level_quad_size / 2);
@@ -249,18 +274,6 @@ Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool
 	return result;
 }
 
-bool check_inside_range(GameObjectContainer* _inquisitee, DistanceDescriminator* _info) {
-	fvector ref_point = _info->compare_point;
-	fvector item_point = _inquisitee->item.world_position;
-	float x = ref_point.x - item_point.x;
-	float y = ref_point.y - item_point.y;
-
-	if (_info->radius >= sqrt((x * x)+(y * y))) {
-		return true;
-	}
-	return false;
-}
-
 std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_quad, bool (*_dcf)(GameObjectContainer* _container, DescriminatorInfo* _dcf_info), DescriminatorInfo* _info) {
 	bool (*descriminator_function)(GameObjectContainer * container, DescriminatorInfo* info) = _dcf;
 
@@ -303,3 +316,4 @@ std::list<GameObjectContainer*> QuadTree::return_in_radius(GameObjectContainer* 
 	//run get_and_splice_objects() on sublings and cousins
 	//splice and return results from get_and_splice_objects()
 }
+#pragma endregion all quad tree functions
