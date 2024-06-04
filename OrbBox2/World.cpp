@@ -145,6 +145,7 @@ Quad::Quad(uint8_t _level, fvector _center, float _manhattan_radius) {
 	level = _level;
 	center = _center;
 	manhattan_radius = _manhattan_radius;
+	parent = nullptr;
 }
 
 Quad::~Quad() {
@@ -248,7 +249,7 @@ Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool
 	return result;
 }
 
-bool QuadTree::check_inside_range(GameObjectContainer* _inquisitee, DistanceDescriminator* _info) {
+bool check_inside_range(GameObjectContainer* _inquisitee, DistanceDescriminator* _info) {
 	fvector ref_point = _info->compare_point;
 	fvector item_point = _inquisitee->item.world_position;
 	float x = ref_point.x - item_point.x;
@@ -260,10 +261,10 @@ bool QuadTree::check_inside_range(GameObjectContainer* _inquisitee, DistanceDesc
 	return false;
 }
 
-std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_quad, bool (QuadTree::*_dcf)(GameObjectContainer* _container, DescriminatorInfo* _dcf_info), DescriminatorInfo* _info) {
-	bool (QuadTree:: * descriminator_function)(GameObjectContainer * container, DescriminatorInfo* info) = _dcf;
+std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_quad, bool (*_dcf)(GameObjectContainer* _container, DescriminatorInfo* _dcf_info), DescriminatorInfo* _info) {
+	bool (*descriminator_function)(GameObjectContainer * container, DescriminatorInfo* info) = _dcf;
 
-	//descope?
+	//watch for descope issues
 	std::list<GameObjectContainer*> filtered_list = std::list<GameObjectContainer*>();
 	std::list<GameObjectContainer*>::iterator current_object = _current_quad->game_object_list.begin();
 	std::list<GameObjectContainer*>::iterator end = _current_quad->game_object_list.end();
@@ -271,9 +272,10 @@ std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_
 	//copy all owned objects into new list, filtering with discriminator function
 	if (!_current_quad->game_object_list.empty()) {
 		while (current_object != end) {
-
 			//filter function
-			if(descriminator_function(&*current_object, _info))
+			if (descriminator_function(*current_object, _info)) {
+
+			}
 
 			std::advance(current_object, 1);
 		}

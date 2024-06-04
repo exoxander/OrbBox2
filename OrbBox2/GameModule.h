@@ -55,6 +55,7 @@ public:
 		:GameModule(_parent_ptr) {
 		allow_reset = _allow_reset;
 		trigger_type = _trigger_type;
+		is_triggered = false;
 	};
 
 	game_module_type get_module_type_name() { return game_module_type::basic_trigger; }

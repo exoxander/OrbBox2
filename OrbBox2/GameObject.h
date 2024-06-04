@@ -18,7 +18,7 @@ public:
 	ivector screen_position;
 	fvector world_position;
 
-	GameObject(uint64_t _uid, GameObjectManager* _gm_ptr) { uid = _uid; gm_ptr = _gm_ptr; };
+	GameObject(uint64_t _uid, GameObjectManager* _gm_ptr, int _meta = 0) { uid = _uid; gm_ptr = _gm_ptr; meta = _meta; };
 	void add_module(GameModule _module);
 	void add_trigger(TriggerModule _module);
 	GameObjectManager* get_manager_ptr() { return gm_ptr; }
