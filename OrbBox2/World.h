@@ -16,6 +16,16 @@ struct GameObjectContainer {
 
 	GameObjectContainer();
 };
+
+struct DescriminatorInfo {
+	DescriminatorInfo() {}
+};
+struct DistanceDescriminator :public DescriminatorInfo {
+	fvector compare_point = fvector();
+	float radius = 0;
+	DistanceDescriminator(fvector _point, float _radius) { compare_point = _point; radius = _radius; }
+};
+
 //QuadTree
 //enum quad_orientation{a,b,c,d};
 
@@ -71,20 +81,25 @@ public:
 	Quad* get_top_level_quad() { return &top_level_quad; }
 
 	//functions to be pointed into get_and_splice_objects as the descriminator during copying
-	bool return_all(GameObjectContainer* _container) {return true;}
 
-	bool return_inside_range(GameObjectContainer* _container);
+	//check nothing, return everything, get_and_splice_objects() defaults to this
+	bool check_none(GameObjectContainer* _container, DescriminatorInfo* _info) {return true;}
 
+	//return only items that are within the radius of the distance descriminators center point
+	//the inquisitee is the object being filtered, the _info centerpoint is the reference for the distance search
+	bool check_inside_range(GameObjectContainer* _inquisitee, DistanceDescriminator* _info);
 
-	//return a list of ids for all objects in surrounding quads and their children (surrounding meaning the containing and 8 adjacent quads)
+	//return a list of containers for all objects in surrounding quads and their children (surrounding meaning the containing and 8 adjacent quads)
 	//search radius property is used to determine the the highest level of the tree searched, radius of zero means search the whole world
-	//size of top level quads to search at (god quad size / (2 ^ quad level)) >= return_radius
 	
-	//recursive, returns a spliced list of all objects contained within a quad heiarchy
-	std::list<GameObjectContainer*> get_and_splice_objects(Quad* _input_quad);
+	//recursive, returns a spliced list of all objects contained within a quad heiarchy, optional filter with a descriminator function and info
+	std::list<GameObjectContainer*> get_and_splice_objects(
+		Quad* _input_quad,
+		bool (QuadTree::*_dcf)(GameObjectContainer* _container, DescriminatorInfo* _dcf_info) = QuadTree::check_none,
+		DescriminatorInfo* _info = &DescriminatorInfo());
 
 	//determines which quads to search using get_and_splace_objects() and returns their ouputs
-	std::list<GameObjectContainer*> return_all_nearby(GameObjectContainer* _inquisitor, int _search_radius);
+	std::list<GameObjectContainer*> return_in_radius(GameObjectContainer* _inquisitor, int _search_radius);
 };
 
 

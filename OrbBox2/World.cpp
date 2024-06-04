@@ -248,11 +248,41 @@ Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool
 	return result;
 }
 
-std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _heiarchy_parent) {
-	//copy all owned objects into new list
+bool QuadTree::check_inside_range(GameObjectContainer* _inquisitee, DistanceDescriminator* _info) {
+	fvector ref_point = _info->compare_point;
+	fvector item_point = _inquisitee->item.world_position;
+	float x = ref_point.x - item_point.x;
+	float y = ref_point.y - item_point.y;
+
+	if (_info->radius >= sqrt((x * x)+(y * y))) {
+		return true;
+	}
+	return false;
+}
+
+std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_quad, bool (QuadTree::*_dcf)(GameObjectContainer* _container, DescriminatorInfo* _dcf_info), DescriminatorInfo* _info) {
+	bool (QuadTree:: * descriminator_function)(GameObjectContainer * container, DescriminatorInfo* info) = _dcf;
+
+	//descope?
+	std::list<GameObjectContainer*> filtered_list = std::list<GameObjectContainer*>();
+	std::list<GameObjectContainer*>::iterator current_object = _current_quad->game_object_list.begin();
+	std::list<GameObjectContainer*>::iterator end = _current_quad->game_object_list.end();
+
+	//copy all owned objects into new list, filtering with discriminator function
+	if (!_current_quad->game_object_list.empty()) {
+		while (current_object != end) {
+
+			//filter function
+			if(descriminator_function(&*current_object, _info))
+
+			std::advance(current_object, 1);
+		}
+	}
 	//recurse on children
 	//splice child results into new list
 	//return new list
+
+	return filtered_list;
 }
 
 
@@ -264,7 +294,7 @@ SR * (2^L) <= TQS
 level <= log2(topQuadSize / searchRadius)
 */
 
-std::list<GameObjectContainer*> QuadTree::return_all_nearby(GameObjectContainer* _inquisitor, int _search_radius) {
+std::list<GameObjectContainer*> QuadTree::return_in_radius(GameObjectContainer* _inquisitor, int _search_radius) {
 	//determine level to search at
 	//navigate to level from inquisitor owner
 	//get pointers to immediate siblings and cousins of top level center
