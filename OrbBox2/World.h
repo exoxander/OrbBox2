@@ -70,20 +70,21 @@ public:
 	Quad* get_inside(fvector _world_coordinant, Quad* _start_point = nullptr, bool _allow_up_search = true);
 	Quad* get_top_level_quad() { return &top_level_quad; }
 
+	//functions to be pointed into get_and_splice_objects as the descriminator during copying
+	bool return_all(GameObjectContainer* _container) {return true;}
+
+	bool return_inside_range(GameObjectContainer* _container);
+
+
 	//return a list of ids for all objects in surrounding quads and their children (surrounding meaning the containing and 8 adjacent quads)
 	//search radius property is used to determine the the highest level of the tree searched, radius of zero means search the whole world
 	//size of top level quads to search at (god quad size / (2 ^ quad level)) >= return_radius
+	
+	//recursive, returns a spliced list of all objects contained within a quad heiarchy
+	std::list<GameObjectContainer*> get_and_splice_objects(Quad* _input_quad);
 
-	/* MATHEMATICS
-	(godqsize / (2^quadlevel)) >= retrradi
-
-	godqsize >= retrradi * (2^quadlevel)
-
-	(godqsize / retrradi) >= 2^quadlevel
-
-	log2(godqsize / retrradi) >= quadlevel
-	*/
-	std::list<GameObjectContainer*> return_all_nearby(uint64_t parent_uid, int return_radius = 0);
+	//determines which quads to search using get_and_splace_objects() and returns their ouputs
+	std::list<GameObjectContainer*> return_all_nearby(GameObjectContainer* _inquisitor, int _search_radius);
 };
 
 
@@ -92,8 +93,6 @@ class GameObjectManager {
 private:
 	const int hash_array_size = 4096;
 	const int prime_hash_value = 4093;
-	//global object hash table
-	//4093 prime value
 	// 4094 and 4095 inaccessable to insert, reserve for engine items?
 	//big prime, 65,521 (65,536)
 

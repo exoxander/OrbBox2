@@ -247,3 +247,27 @@ Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool
 
 	return result;
 }
+
+std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _heiarchy_parent) {
+	//copy all owned objects into new list
+	//recurse on children
+	//splice child results into new list
+	//return new list
+}
+
+
+/* quadtree traversal based on a search radius
+searchRadius <= manhattanRadius = (topQuadSize / (2^level))
+searchRadius <= (topQuadSize / (2^level)
+SR * (2^L) <= TQS
+2^l <= TQS / SR
+level <= log2(topQuadSize / searchRadius)
+*/
+
+std::list<GameObjectContainer*> QuadTree::return_all_nearby(GameObjectContainer* _inquisitor, int _search_radius) {
+	//determine level to search at
+	//navigate to level from inquisitor owner
+	//get pointers to immediate siblings and cousins of top level center
+	//run get_and_splice_objects() on sublings and cousins
+	//splice and return results from get_and_splice_objects()
+}
