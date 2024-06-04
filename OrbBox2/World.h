@@ -17,14 +17,14 @@ struct GameObjectContainer {
 	GameObjectContainer();
 };
 
-//search and filter discriminators and functions
-struct DescriminatorInfo {
-	DescriminatorInfo() {}
+//quadtree search and filter discriminators
+struct DCFInfo {
+	DCFInfo() {}
 };
-struct DistanceDescriminator :public DescriminatorInfo {
+struct DistanceDCF :public DCFInfo {
 	fvector compare_point = fvector();
 	float radius = 0;
-	DistanceDescriminator(fvector _point, float _radius) { compare_point = _point; radius = _radius; }
+	DistanceDCF(fvector _point, float _radius) { compare_point = _point; radius = _radius; }
 };
 
 
@@ -94,8 +94,8 @@ public:
 	//recursive, returns a spliced list of all objects contained within a quad heiarchy, optional filter with a descriminator function and info
 	std::list<GameObjectContainer*> get_and_splice_objects(
 		Quad* _input_quad,
-		bool (*_dcf)(GameObjectContainer* _container, DescriminatorInfo* _dcf_info) = check_none,
-		DescriminatorInfo* _info = &DescriminatorInfo());
+		bool (*_dcf)(GameObjectContainer* _container, DCFInfo* _dcf_info) = check_none,
+		DCFInfo* _info = &DCFInfo());
 
 	//determines which quads to search using get_and_splace_objects() and returns their ouputs
 	std::list<GameObjectContainer*> return_in_radius(GameObjectContainer* _inquisitor, int _search_radius);

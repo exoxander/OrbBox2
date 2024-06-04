@@ -5,11 +5,11 @@
 //quad tree discriminator functions
 
 //check nothing, return everything, get_and_splice_objects() defaults to this
-bool check_none(GameObjectContainer* _container, DescriminatorInfo* _info) { return true; }
+bool check_none(GameObjectContainer* _container, DCFInfo* _info) { return true; }
 
 //return only items that are within the radius of the distance descriminators center point
 //the inquisitee is the object being filtered, the _info centerpoint is the reference for the distance search
-bool check_inside_range(GameObjectContainer* _inquisitee, DistanceDescriminator* _info) {
+bool check_inside_range(GameObjectContainer* _inquisitee, DistanceDCF* _info) {
 	fvector ref_point = _info->compare_point;
 	fvector item_point = _inquisitee->item.world_position;
 	float x = ref_point.x - item_point.x;
@@ -274,13 +274,14 @@ Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool
 	return result;
 }
 
-std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_quad, bool (*_dcf)(GameObjectContainer* _container, DescriminatorInfo* _dcf_info), DescriminatorInfo* _info) {
-	bool (*descriminator_function)(GameObjectContainer * container, DescriminatorInfo* info) = _dcf;
+std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_quad, bool (*_dcf)(GameObjectContainer* _container, DCFInfo* _dcf_info), DCFInfo* _info) {
+	bool (*descriminator_function)(GameObjectContainer * container, DCFInfo* info) = _dcf;
 
 	//watch for descope issues
 	std::list<GameObjectContainer*> filtered_list = std::list<GameObjectContainer*>();
 	std::list<GameObjectContainer*>::iterator current_object = _current_quad->game_object_list.begin();
 	std::list<GameObjectContainer*>::iterator end = _current_quad->game_object_list.end();
+	GameObjectContainer* object_copy = nullptr;
 
 	//copy all owned objects into new list, filtering with discriminator function
 	if (!_current_quad->game_object_list.empty()) {
@@ -288,15 +289,23 @@ std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_
 			//filter function
 			if (descriminator_function(*current_object, _info)) {
 
+				//may not be nessicary, but feels better
+				object_copy = *current_object;
+				filtered_list.push_back(object_copy);
 			}
 
 			std::advance(current_object, 1);
 		}
 	}
 	//recurse on children
-	//splice child results into new list
+	if (_current_quad->children[0] != nullptr) {
+		for (int quad = 0; quad < 4; quad++) {
+			//recurse on children and splice result into filtered list
+			filtered_list.splice(filtered_list.end(), get_and_splice_objects(_current_quad->children[quad], _dcf, _info));			
+		}
+	}
+	
 	//return new list
-
 	return filtered_list;
 }
 
@@ -314,6 +323,6 @@ std::list<GameObjectContainer*> QuadTree::return_in_radius(GameObjectContainer* 
 	//navigate to level from inquisitor owner
 	//get pointers to immediate siblings and cousins of top level center
 	//run get_and_splice_objects() on sublings and cousins
-	//splice and return results from get_and_splice_objects()
+	//splice and return results from get_and_splice_objects() using the range dcf and info
 }
 #pragma endregion all quad tree functions
