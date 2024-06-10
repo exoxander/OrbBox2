@@ -1,26 +1,18 @@
 #include "World.h"
 #include <math.h>
 
-#pragma region discriminators
-//quad tree discriminator functions
-
-//check nothing, return everything, get_and_splice_objects() defaults to this
-bool check_none(GameObjectContainer* _container, DCFInfo* _info) { return true; }
-
-//return only items that are within the radius of the distance descriminators center point
-//the inquisitee is the object being filtered, the _info centerpoint is the reference for the distance search
-bool check_inside_range(GameObjectContainer* _inquisitee, DistanceDCF* _info) {
-	fvector ref_point = _info->compare_point;
-	fvector item_point = _inquisitee->item.world_position;
+#pragma region objectfilters
+bool DistanceFilter::filter(GameObjectContainer* _container) {
+	fvector item_point = _container->item.world_position;
 	float x = ref_point.x - item_point.x;
 	float y = ref_point.y - item_point.y;
 
-	if (_info->radius >= sqrt((x * x) + (y * y))) {
+	if (radius >= sqrt((x * x) + (y * y))) {
 		return true;
 	}
 	return false;
 }
-#pragma endregion search discriminator functions
+#pragma endregion search filter functions
 
 #pragma region game_object_manager
 //create a new clean object with a unique 64 bit identifier
@@ -164,10 +156,11 @@ void GameObjectManager::destroy_game_object(GameObject* _object) {
 
 #pragma region Quad
 //quad
-Quad::Quad(uint8_t _level, fvector _center, float _manhattan_radius) {
+Quad::Quad(uint8_t _level, fvector _center, float _manhattan_radius, quad_pos _pos) {
 	level = _level;
 	center = _center;
 	manhattan_radius = _manhattan_radius;
+	position = _pos;
 	parent = nullptr;
 }
 
@@ -198,19 +191,19 @@ void Quad::create_children(uint8_t _level_limit) {
 
 	//a
 	next_child_center = center + fvector(-child_radius, -child_radius);
-	children[0] = new Quad(level++, next_child_center, child_radius);
+	children[0] = new Quad(level++, next_child_center, child_radius, a);
 
 	//b
 	next_child_center = center + fvector(child_radius, -child_radius);
-	children[1] = new Quad(level++, next_child_center, child_radius);
+	children[1] = new Quad(level++, next_child_center, child_radius, b);
 
 	//c
 	next_child_center = center + fvector(child_radius, child_radius);
-	children[2] = new Quad(level++, next_child_center, child_radius);
+	children[2] = new Quad(level++, next_child_center, child_radius, c);
 
 	//d
 	next_child_center = center + fvector(-child_radius, child_radius);
-	children[3] = new Quad(level++, next_child_center, child_radius);
+	children[3] = new Quad(level++, next_child_center, child_radius, d);
 
 	//check level limit, create grandchildren if level value allows
 	if (level < _level_limit) {
@@ -274,8 +267,7 @@ Quad* QuadTree::get_inside(fvector _world_coordinant, Quad* _starting_quad, bool
 	return result;
 }
 
-std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_quad, bool (*_dcf)(GameObjectContainer* _container, DCFInfo* _dcf_info), DCFInfo* _info) {
-	bool (*descriminator_function)(GameObjectContainer * container, DCFInfo* info) = _dcf;
+std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_quad, ObjectFilter* _filter){
 
 	//watch for descope issues
 	std::list<GameObjectContainer*> filtered_list = std::list<GameObjectContainer*>();
@@ -287,7 +279,7 @@ std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_
 	if (!_current_quad->game_object_list.empty()) {
 		while (current_object != end) {
 			//filter function
-			if (descriminator_function(*current_object, _info)) {
+			if (_filter->filter(*current_object)) {
 
 				//may not be nessicary, but feels better
 				object_copy = *current_object;
@@ -297,16 +289,22 @@ std::list<GameObjectContainer*> QuadTree::get_and_splice_objects(Quad* _current_
 			std::advance(current_object, 1);
 		}
 	}
-	//recurse on children
+
+	//recurse on children if they exist
 	if (_current_quad->children[0] != nullptr) {
 		for (int quad = 0; quad < 4; quad++) {
 			//recurse on children and splice result into filtered list
-			filtered_list.splice(filtered_list.end(), get_and_splice_objects(_current_quad->children[quad], _dcf, _info));			
+			filtered_list.splice(filtered_list.end(), get_and_splice_objects(_current_quad->children[quad],_filter));			
 		}
 	}
 	
 	//return new list
 	return filtered_list;
+}
+
+Quad* QuadTree::get_quad_relative(quad_pos _start, quad_pos _end, int level) {
+
+	return nullptr;
 }
 
 
@@ -319,10 +317,49 @@ level <= log2(topQuadSize / searchRadius)
 */
 
 std::list<GameObjectContainer*> QuadTree::return_in_radius(GameObjectContainer* _inquisitor, int _search_radius) {
+	int min_search_depth = 0;
+	int top_level_position = 0;
+	Quad* top_level_search_center = _inquisitor->tree_owner;
+	Quad* top_level_relatives[8] = {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr,nullptr};
+	/*
+	  0:TL 1:TC 2:TR
+
+	  7:CL TLSC 3:CR
+
+	  6:BL 5:BC 4:BR
+	*/
+
 	//determine level to search at
+	min_search_depth = static_cast<int>(floor(log2(top_level_quad_size / _search_radius)));
+	
 	//navigate to level from inquisitor owner
-	//get pointers to immediate siblings and cousins of top level center
-	//run get_and_splice_objects() on sublings and cousins
+	//assumes the tree owner for _inquisitor is a bottom level quad, (should still work otherwise?)
+	while (top_level_search_center->level > min_search_depth) {
+		top_level_search_center = top_level_search_center->parent;
+	}
+	
+	//if not the top level quad
+	if (top_level_search_center->level > 0) {
+		//get siblings and cousins based on this quads position as ordered under top_level_relatives[]
+		/* sibling positions by index
+			0  1
+			3  2
+		*/
+		switch (top_level_search_center->position) {
+		case a://top left
+			break;
+		case b://top right
+			break;
+		case c://bottom right
+			break;
+		case d://bottom left
+			break;
+		}
+		//run get_and_splice_objects() on siblings and cousins
+	}
+	else {
+		//do this if the search radius is the whole world
+	}
 	//splice and return results from get_and_splice_objects() using the range dcf and info
 }
 #pragma endregion all quad tree functions

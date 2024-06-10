@@ -17,19 +17,26 @@ struct GameObjectContainer {
 	GameObjectContainer();
 };
 
-//quadtree search and filter discriminators
-struct DCFInfo {
-	DCFInfo() {}
+//quadtree filters
+
+class ObjectFilter {
+public:
+	ObjectFilter();
+	virtual bool filter(GameObjectContainer* _item) { return true; }
 };
-struct DistanceDCF :public DCFInfo {
-	fvector compare_point = fvector();
-	float radius = 0;
-	DistanceDCF(fvector _point, float _radius) { compare_point = _point; radius = _radius; }
+
+class DistanceFilter : public ObjectFilter {
+private:
+	fvector ref_point;
+	float radius;
+public:
+	DistanceFilter(fvector _point = fvector(), float _radius = 0) { ref_point = _point; radius = _radius; }
+	bool filter(GameObjectContainer* _item);
 };
 
 
 //QuadTree
-//enum quad_orientation{a,b,c,d};
+enum quad_pos{a,b,c,d};
 
 /* https://www.youtube.com/watch?v=wXF3HIhnUOg&list=WL&index=11&t=1172s */
 class Quad {
@@ -40,7 +47,7 @@ public:
 	fvector center;
 
 	Quad* parent;
-	//quad_orientation orientation;
+	quad_pos position;
 
 	Quad* children[4] = {nullptr,nullptr,nullptr,nullptr};
 
@@ -56,7 +63,7 @@ public:
 	bool check_inside(fvector _world_coordinant);
 	void create_children(uint8_t _level_limit);
 	Quad();
-	Quad(uint8_t _level, fvector _center, float _manhattan_radius);
+	Quad(uint8_t _level, fvector _center, float _manhattan_radius, quad_pos _pos = a);
 	~Quad();
 };
 
@@ -84,6 +91,9 @@ public:
 	Quad* get_inside(fvector _world_coordinant, Quad* _start_point = nullptr, bool _allow_up_search = true);
 	Quad* get_top_level_quad() { return &top_level_quad; }
 
+	//traverses around the tree and returns the given sibling / cousin to the start quad
+	Quad* get_quad_relative(quad_pos _start, quad_pos _end, int _level);
+
 	//functions to be pointed into get_and_splice_objects as the descriminator during copying
 
 	
@@ -92,10 +102,7 @@ public:
 	//search radius property is used to determine the the highest level of the tree searched, radius of zero means search the whole world
 	
 	//recursive, returns a spliced list of all objects contained within a quad heiarchy, optional filter with a descriminator function and info
-	std::list<GameObjectContainer*> get_and_splice_objects(
-		Quad* _input_quad,
-		bool (*_dcf)(GameObjectContainer* _container, DCFInfo* _dcf_info) = check_none,
-		DCFInfo* _info = &DCFInfo());
+	std::list<GameObjectContainer*> get_and_splice_objects(Quad* _input_quad, ObjectFilter* _filter = &ObjectFilter());
 
 	//determines which quads to search using get_and_splace_objects() and returns their ouputs
 	std::list<GameObjectContainer*> return_in_radius(GameObjectContainer* _inquisitor, int _search_radius);
