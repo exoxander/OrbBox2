@@ -15,6 +15,7 @@ public:
 	void operator-=(const fvector& other) { x -= other.x; y -= other.y; }
 
 	float distance() { return sqrt((x * x) + (y * y)); }
+	int distance_int() { return static_cast<int>(distance()); }
 };
 
 //integer vector
