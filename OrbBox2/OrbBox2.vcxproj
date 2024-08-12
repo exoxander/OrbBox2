@@ -130,17 +130,13 @@
     <ClCompile Include="GameComponent.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="MarkupInterface.cpp" />
-    <ClCompile Include="Utilities.cpp" />
     <ClCompile Include="Vectors.cpp" />
     <ClCompile Include="GameManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameComponent.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="MarkupInterface.h" />
     <ClInclude Include="olcPixelGameEngine.h" />
-    <ClInclude Include="Utilities.h" />
     <ClInclude Include="Vectors.h" />
     <ClInclude Include="GameManager.h" />
   </ItemGroup>

@@ -1,7 +1,5 @@
 #pragma once
 #include <string.h>
-#include "World.h"
-
 /*
 * INTEGERS
 * BOOLEAN (integers of 0 and 1)
@@ -42,6 +40,7 @@
 class MarkupInterface
 {
 protected:
+	/*
 	//use string snipping between special characters into a switch case for setting all values
 	GameObject create_game_object_from_read();
 	//check module type and use smaller specialized functions for each?
@@ -49,6 +48,7 @@ protected:
 
 	void write_game_object_data(int depth, GameObject& _object);
 	void write_game_module_data(int depth, GameModule& _module);
+	*/
 	void write_save_data();
 	void read_save_data();
 public:

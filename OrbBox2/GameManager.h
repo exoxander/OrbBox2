@@ -1,6 +1,8 @@
 #pragma once
 #include "olcPixelGameEngine.h"
 #include "GameObject.h"
+//forward declare
+class PGE;
 
 class Quad {
 private:
@@ -24,10 +26,22 @@ private:
 	//object_table == new std::list<GameObject*>[array_size];
 	std::list<GameObject*>::iterator hash(uint64_t input) { return object_table[input % array_size].begin(); };
 public:
-	GameObject* get_object(uint64_t _input);
+	//GameObject* get_object(uint64_t _input);
 };
 
 class GameManager {
+private:
+	uint64_t id_counter;
 public:
 	PGE* olc_pge;
+
+	GameObject* create_game_object(const char* _title = nullptr);
+
+	//temp
+	std::list<GameObject> game_objects;
+	GameManager(PGE* _pge) {
+		olc_pge = _pge;
+		game_objects = std::list<GameObject>();
+		id_counter = 0;
+	}
 };

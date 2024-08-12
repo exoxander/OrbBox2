@@ -1,14 +1,27 @@
 #pragma once
 #include "GameComponent.h"
+//forward declare
+class GameManager;
+
 
 class GameObject {
 private:
 	uint64_t id;
-	GameManager* game_manager;
 protected:
-	std::vector<GameComponent> object_components;
 public:
+	const char* name;
 	ivector screen_position;
-	uint64_t get_id() { return id; }
-	GameManager* get_game_manager() { return game_manager; }
+	uint64_t get_id() { return id; };
+	GameManager* game_manager;
+	std::vector<std::shared_ptr<GameComponent>> object_components;
+
+	GameObject(uint64_t _id, GameManager* _mgr, const char* _name = nullptr) {
+		id = _id;
+		game_manager = _mgr;
+		name = _name == nullptr ? "default_object" : _name;
+		screen_position = ivector();
+		object_components = std::vector<std::shared_ptr<GameComponent>>();
+	};
+
+	void insert_component(std::shared_ptr<GameComponent> _comp) { object_components.push_back(_comp); }
 };

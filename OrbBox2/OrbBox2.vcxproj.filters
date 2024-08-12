@@ -24,13 +24,7 @@
     <ClCompile Include="GameComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utilities.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Vectors.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MarkupInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GameManager.cpp">
@@ -50,13 +44,7 @@
     <ClInclude Include="GameComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utilities.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Vectors.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MarkupInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
