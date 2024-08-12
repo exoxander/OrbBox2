@@ -29,8 +29,8 @@ public:
 		// Called once at the start, so create things here
 
 		GameObject* test_object = game_manager.create_game_object("mouse_test_object");
-		test_object->insert_component(std::make_shared<SimpleSpriteComponent>(0, test_object));
-		test_object->insert_component(std::make_shared<FollowMouseComponent>(1, test_object));
+		test_object->insert_component(new SimpleSpriteComponent(0, test_object));
+		test_object->insert_component(new FollowMouseComponent(1, test_object));
 		return true;
 	}
 
@@ -45,11 +45,12 @@ public:
 			std::list<GameObject>::iterator object_end = game_manager.game_objects.end();
 
 			while (object_iterator != object_end) {
-				std::vector<std::shared_ptr<GameComponent>>::iterator component_iterator = object_iterator->object_components.begin();
-				std::vector<std::shared_ptr<GameComponent>>::iterator component_end = object_iterator->object_components.end();
+				std::vector<GameComponent*>::iterator component_iterator = object_iterator->object_components.begin();
+				std::vector<GameComponent*>::iterator component_end = object_iterator->object_components.end();
 
 				while (component_iterator != component_end) {
-					component_iterator->get()->run();
+					GameComponent* gc = *component_iterator;
+					gc->on_frame();
 					//std::cout << "running: " << object_iterator->name << " | " << component_iterator->get()->get_name() << std::endl;
 					std::advance(component_iterator, 1);
 				}

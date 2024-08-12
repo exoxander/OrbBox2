@@ -13,7 +13,9 @@ public:
 	}
 	
 	virtual const char* get_name() { return "default_component"; };
-	virtual void run() {};
+	virtual void on_frame() {};
+	virtual void on_step() {};
+	virtual void after_step() {};
 };
 
 class DisplayComponent : public GameComponent {
@@ -35,7 +37,7 @@ public:
 	}
 	const char* get_name() { return "simple_sprite_component"; };
 	void draw() override;
-	void run() override { draw(); }
+	void on_frame() override { draw(); }
 };
 
 class FollowMouseComponent : public GameComponent {
@@ -44,5 +46,5 @@ public:
 
 	const char* get_name() { return "follow_mouse_component"; };
 	void move();
-	void run() override { move(); }
+	void on_frame() override { move(); }
 };
