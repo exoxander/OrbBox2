@@ -29,13 +29,18 @@ public:
 	//GameObject* get_object(uint64_t _input);
 };
 
+//game options,held in struct
+struct Options {
+	bool object_name_debug_draw = false;
+};
+
 class GameManager {
 private:
 	uint64_t id_counter;
 public:
 	PGE* olc_pge;
-
 	GameObject* create_game_object(const char* _title = nullptr);
+	Options game_options;
 
 	//temp
 	std::list<GameObject> game_objects;
@@ -43,5 +48,7 @@ public:
 		olc_pge = _pge;
 		game_objects = std::list<GameObject>();
 		id_counter = 0;
+		//debug options
+		game_options = Options();
 	}
 };

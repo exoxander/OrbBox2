@@ -25,15 +25,31 @@ public:
 	virtual void draw() {};
 };
 
+class PhysicsComponent : public GameComponent {
+protected:
+	fvector position;
+	fvector velocity;
+	float mass;
+
+public:
+
+};
+
 class SimpleSpriteComponent : public DisplayComponent {
 protected:
 	olc::Sprite simple_sprite;
+
+	//max dimension 256x256px
+	uint8_t width;
+	uint8_t height;
 public:
-	SimpleSpriteComponent(uint8_t _id, GameObject* _pnt, const char* _img = nullptr): DisplayComponent(_id, _pnt) {
+	SimpleSpriteComponent(uint8_t _id, GameObject* _pnt,uint8_t _w, uint8_t _h, const char* _img = nullptr): DisplayComponent(_id, _pnt) {
 		if (_img == nullptr) {
 			_img = "../default.png";
 		}
 		simple_sprite = olc::Sprite(_img);
+		width = _w;
+		height = _h;
 	}
 	const char* get_name() { return "simple_sprite_component"; };
 	void draw() override;
@@ -47,4 +63,12 @@ public:
 	const char* get_name() { return "follow_mouse_component"; };
 	void move();
 	void on_frame() override { move(); }
+};
+
+class OnClickDebugDraw : public GameComponent {
+protected:
+	bool is_active;
+public:
+	OnClickDebugDraw(uint8_t _id, GameObject* _pnt) : GameComponent(_id, _pnt) {}
+	void on_frame() override;
 };
