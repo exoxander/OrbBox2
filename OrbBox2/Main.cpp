@@ -31,7 +31,7 @@ public:
 		GameObject* test_object = game_manager.create_game_object("mouse_test_object");
 		test_object->insert_component(new SimpleSpriteComponent(0, test_object,64,64));
 		test_object->insert_component(new FollowMouseComponent(1, test_object));
-		test_object->insert_component(new OnClickDebugDraw(2, test_object));
+		test_object->insert_component(new OnMouseDownDebugDraw(2, test_object));
 		return true;
 	}
 
@@ -79,7 +79,7 @@ int main()
 	return 0;
 }
 
-//TESTING
+//================================[ Game Components ]==================================
 void SimpleSpriteComponent::draw(){
 	PGE* olc_pge = parent->game_manager->olc_pge;
 	olc_pge->DrawSprite(parent->screen_position.x - (width / 2), parent->screen_position.y - (height / 2), &simple_sprite, 1);
@@ -88,12 +88,12 @@ void SimpleSpriteComponent::draw(){
 	}
 }
 
-void FollowMouseComponent::move() {
+void FollowMouseComponent::on_frame() {
 	PGE* olc_pge = parent->game_manager->olc_pge;
 	parent->screen_position = ivector(olc_pge->GetMouseX(), olc_pge->GetMouseY());
 }
 
-void OnClickDebugDraw::on_frame() {
+void OnMouseDownDebugDraw::on_frame() {
 	PGE* olc_pge = parent->game_manager->olc_pge;
 	if (olc_pge->GetMouse(0).bHeld) {
 		if (!is_active) {

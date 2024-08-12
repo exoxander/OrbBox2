@@ -41,12 +41,14 @@ public:
 	PGE* olc_pge;
 	GameObject* create_game_object(const char* _title = nullptr);
 	Options game_options;
+	std::list<GameComponent*> physics_components;
 
 	//temp
 	std::list<GameObject> game_objects;
 	GameManager(PGE* _pge) {
 		olc_pge = _pge;
 		game_objects = std::list<GameObject>();
+		physics_components = std::list<GameComponent*>();
 		id_counter = 0;
 		//debug options
 		game_options = Options();

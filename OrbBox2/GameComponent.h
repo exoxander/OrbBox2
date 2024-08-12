@@ -25,14 +25,36 @@ public:
 	virtual void draw() {};
 };
 
+struct Animation {
+	bool loop;
+	int frames;
+	std::vector<olc::Sprite> sprite_set;
+};
+class AnimatedComponent : public DisplayComponent {
+protected:
+public:
+	const char* get_name() { return "animated_component"; }
+};
+
 class PhysicsComponent : public GameComponent {
 protected:
 	fvector position;
 	fvector velocity;
 	float mass;
-
 public:
+	const char* get_name() { return "physics_component"; }
 
+	//register physics object with the game manager
+	void register_component();
+};
+
+class ColliderComponent : public GameComponent {
+protected:
+public:
+	const char* get_name() { return "collider_component"; }
+
+	//register physics object with the game manager
+	void register_component();
 };
 
 class SimpleSpriteComponent : public DisplayComponent {
@@ -61,14 +83,13 @@ public:
 	FollowMouseComponent(uint8_t _id, GameObject* _pnt) : GameComponent(_id, _pnt){}
 
 	const char* get_name() { return "follow_mouse_component"; };
-	void move();
-	void on_frame() override { move(); }
+	void on_frame() override;
 };
 
-class OnClickDebugDraw : public GameComponent {
+class OnMouseDownDebugDraw : public GameComponent {
 protected:
 	bool is_active;
 public:
-	OnClickDebugDraw(uint8_t _id, GameObject* _pnt) : GameComponent(_id, _pnt) {}
+	OnMouseDownDebugDraw(uint8_t _id, GameObject* _pnt) : GameComponent(_id, _pnt) {}
 	void on_frame() override;
 };
