@@ -32,6 +32,19 @@ public:
 		test_object->insert_component(new SimpleSpriteComponent(0, test_object,64,64));
 		test_object->insert_component(new FollowMouseComponent(1, test_object));
 		test_object->insert_component(new OnMouseDownDebugDraw(2, test_object));
+
+		//mass objects
+		GameObject* m1 = game_manager.create_game_object("mass_1");
+		GameObject* m2 = game_manager.create_game_object("mass_2");
+
+		m1->insert_component(new DisplayComponent(0, m1));
+		m1->insert_component(new PhysicsComponent(1, m1, 100000, fvector(500, 400),fvector(4,2)));
+		m1->object_components[1]->on_create();
+
+		m2->insert_component(new DisplayComponent(0, m2));
+		m2->insert_component(new PhysicsComponent(1, m2, 1000000000, fvector(600, 500),fvector(-.1,.2)));
+		m2->object_components[1]->on_create();
+
 		return true;
 	}
 
@@ -64,6 +77,8 @@ public:
 
 				std::advance(object_iterator, 1);
 			}
+
+			game_manager.step();
 		}
 		
 		return true;
@@ -80,6 +95,15 @@ int main()
 }
 
 //================================[ Game Components ]==================================
+
+void DisplayComponent::draw() {
+	PGE* olc_pge = parent->game_manager->olc_pge;
+	olc_pge->DrawCircle(parent->screen_position.x, parent->screen_position.y, 5, olc::CYAN);
+	if (parent->game_manager->game_options.object_name_debug_draw) {
+		olc_pge->DrawString(parent->screen_position.x, parent->screen_position.y, parent->name, olc::WHITE);
+	}
+}
+
 void SimpleSpriteComponent::draw(){
 	PGE* olc_pge = parent->game_manager->olc_pge;
 	olc_pge->DrawSprite(parent->screen_position.x - (width / 2), parent->screen_position.y - (height / 2), &simple_sprite, 1);
@@ -105,6 +129,14 @@ void OnMouseDownDebugDraw::on_frame() {
 		if (is_active) {
 			is_active = false;
 			parent->game_manager->game_options.object_name_debug_draw = false;
+		}
+	}
+}
+
+void PhysicsComponent::register_component() {
+	if (parent != nullptr) {
+		if (parent->game_manager != nullptr) {
+			parent->game_manager->physics_components.push_back(this);
 		}
 	}
 }

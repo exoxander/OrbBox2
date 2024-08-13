@@ -14,6 +14,12 @@ public:
 	fvector operator-(const fvector& other) { return fvector(x - other.x, y - other.y); }
 	void operator-=(const fvector& other) { x -= other.x; y -= other.y; }
 
+	fvector operator*(const float& other) { return fvector(x * other, y * other); };
+	void operator*=(const float& other) { x *= other; y *= other; };
+
+	fvector operator/(const float& other) { return fvector(x / other, y / other); };
+	void operator/=(const float& other) { x /= other; y /= other; };
+
 	float distance() { return sqrt((x * x) + (y * y)); }
 	int distance_int() { return static_cast<int>(distance()); }
 };

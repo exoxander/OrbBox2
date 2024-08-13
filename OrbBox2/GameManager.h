@@ -29,6 +29,19 @@ public:
 	//GameObject* get_object(uint64_t _input);
 };
 
+class FrogIntegrator {
+private:
+public:
+	void leap(std::list<PhysicsComponent*>::iterator _iterator, std::list<PhysicsComponent*>::iterator _end,int _matrix_size, float _dt = (1.0f / 60.0f));
+};
+
+class Camera {
+private:
+public:
+	ivector world_to_screen(fvector _world);
+	fvector screen_to_world(ivector _screen);
+};
+
 //game options,held in struct
 struct Options {
 	bool object_name_debug_draw = false;
@@ -41,16 +54,22 @@ public:
 	PGE* olc_pge;
 	GameObject* create_game_object(const char* _title = nullptr);
 	Options game_options;
-	std::list<GameComponent*> physics_components;
+	std::list<PhysicsComponent*> physics_components;
+	Camera view;
+	FrogIntegrator frog;
 
 	//temp
 	std::list<GameObject> game_objects;
 	GameManager(PGE* _pge) {
 		olc_pge = _pge;
 		game_objects = std::list<GameObject>();
-		physics_components = std::list<GameComponent*>();
+		physics_components = std::list<PhysicsComponent*>();
 		id_counter = 0;
 		//debug options
 		game_options = Options();
+		view = Camera();
+		frog = FrogIntegrator();
 	}
+
+	void step();
 };

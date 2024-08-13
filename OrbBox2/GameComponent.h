@@ -11,8 +11,10 @@ public:
 		id = _id;
 		parent = _pnt;
 	}
-	
+	GameObject* get_parent() { return parent; };
 	virtual const char* get_name() { return "default_component"; };
+
+	virtual void on_create() {};
 	virtual void on_frame() {};
 	virtual void on_step() {};
 	virtual void after_step() {};
@@ -22,7 +24,8 @@ class DisplayComponent : public GameComponent {
 protected:
 public:
 	DisplayComponent(uint8_t _id, GameObject* _pnt) : GameComponent(_id, _pnt) {};
-	virtual void draw() {};
+	virtual void draw();
+	void on_frame() { draw(); };
 };
 
 struct Animation {
@@ -38,14 +41,28 @@ public:
 
 class PhysicsComponent : public GameComponent {
 protected:
+	
+public:
+	bool is_static;
+	fvector accumulator;
+	fvector acceleration;
 	fvector position;
 	fvector velocity;
 	float mass;
-public:
+
+	PhysicsComponent(uint8_t _id, GameObject* _pnt, float _mass = 10, fvector _pos = fvector(), fvector _vel = fvector()) : GameComponent(_id, _pnt){
+		mass = _mass;
+		position = _pos;
+		velocity = _vel;
+		acceleration = fvector();
+		accumulator = fvector();
+		is_static = false;
+	}
 	const char* get_name() { return "physics_component"; }
 
 	//register physics object with the game manager
 	void register_component();
+	void on_create() { register_component(); }
 };
 
 class ColliderComponent : public GameComponent {
