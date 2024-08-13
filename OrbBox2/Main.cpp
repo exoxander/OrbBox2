@@ -65,7 +65,8 @@ public:
 		fAccumulator += fElapsedTime;
 		if (fAccumulator >= fRate) {
 			fAccumulator = 0;
-
+			//move camera
+			game_manager.view.move_view(game_manager.olc_pge);
 			//draw background
 			for (int x = 0; x < ScreenWidth(); x++)
 				for (int y = 0; y < ScreenHeight(); y++)
@@ -81,7 +82,6 @@ public:
 				while (component_iterator != component_end) {
 					GameComponent* gc = *component_iterator;
 					gc->on_frame();
-					//std::cout << "running: " << object_iterator->name << " | " << component_iterator->get()->get_name() << std::endl;
 					std::advance(component_iterator, 1);
 				}
 
@@ -104,6 +104,22 @@ int main()
 	return 0;
 }
 
+//==============================[ Game Manager Camera ]================================
+void Camera::move_view(PGE* _pge_ptr) {
+	if (_pge_ptr->GetKey(olc::UP).bHeld) {
+		view_offset.y += offset_move_speed;
+	}
+	else if (_pge_ptr->GetKey(olc::DOWN).bHeld) {
+		view_offset.y -= offset_move_speed;
+	}
+
+	if (_pge_ptr->GetKey(olc::LEFT).bHeld) {
+		view_offset.x += offset_move_speed;
+	}
+	else if (_pge_ptr->GetKey(olc::RIGHT).bHeld) {
+		view_offset.x -= offset_move_speed;
+	}
+}
 //================================[ Game Components ]==================================
 
 void DisplayComponent::draw() {

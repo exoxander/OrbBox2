@@ -2,6 +2,7 @@
 #include "GameComponent.h"
 //forward declare
 class GameManager;
+class Quad;
 enum ObjectState{alive,dead,ghost};
 //alive: normal, send and recieve interactions
 //dead: marked to be destroyed, no interactions
@@ -18,6 +19,7 @@ public:
 	GameManager* game_manager;
 	std::vector<GameComponent*> object_components;
 	ObjectState state;
+	Quad* tree_owner;
 
 	GameObject(uint64_t _id, GameManager* _mgr, const char* _name = nullptr, ObjectState _state = ObjectState::alive) {
 		id = _id;
@@ -26,6 +28,7 @@ public:
 		screen_position = ivector();
 		object_components = std::vector<GameComponent* >();
 		state = _state;
+		tree_owner = nullptr;
 	};
 
 	void insert_component(GameComponent* _comp) { object_components.push_back(_comp); }

@@ -32,19 +32,29 @@ public:
 class FrogIntegrator {
 private:
 public:
-	void leap(std::list<PhysicsComponent*>::iterator _iterator, std::list<PhysicsComponent*>::iterator _end,int _matrix_size, float _dt = (1.0f / 60.0f));
+	void leap(std::list<PhysicsComponent*>::iterator _iterator, std::list<PhysicsComponent*>::iterator _end, bool _pause, float _dt = (1.0f / 60.0f));
 };
 
 class Camera {
 private:
+	fvector view_offset;
+	float view_scale;
+	float offset_move_speed;
 public:
+	Camera() {
+		view_offset = fvector();
+		view_scale = 1;
+		offset_move_speed = 5;
+	}
 	ivector world_to_screen(fvector _world);
 	fvector screen_to_world(ivector _screen);
+	void move_view(PGE* _pge_ptr);
 };
 
 //game options,held in struct
 struct Options {
 	bool object_name_debug_draw = false;
+	bool pause_physics = false;
 };
 
 class GameManager {
