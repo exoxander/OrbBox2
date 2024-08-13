@@ -32,6 +32,6 @@ public:
 		tree_owner = nullptr;
 	};
 
-	GameComponent* get_component_by_name(const char* _name);
+	GameComponent* get_component_by_name(const char* _name) { return nullptr; };
 	void insert_component(GameComponent* _comp) { object_components.push_back(_comp); }
 };

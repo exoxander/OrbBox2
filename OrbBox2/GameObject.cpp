@@ -1,7 +1,8 @@
-#include "GameObject.h"
+//#include "GameObject.h"
 #include <vector>
 
 //return the first component which matches the given name
+/*
 GameComponent* GameObject::get_component_by_name(const char* _name) {
 	std::vector<GameComponent*>::iterator it = object_components.begin();
 	std::vector<GameComponent*>::iterator end = object_components.end();
@@ -14,4 +15,4 @@ GameComponent* GameObject::get_component_by_name(const char* _name) {
 	}
 
 	return nullptr;
-}
+}*/
