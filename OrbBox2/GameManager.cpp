@@ -1,4 +1,5 @@
 #include "GameManager.h"
+#include <cmath>
 
 GameObject* GameManager::create_game_object(const char* _title) {
 
@@ -56,11 +57,10 @@ void FrogIntegrator::leap(std::list<PhysicsComponent*>::iterator _iterator, std:
 			}
 			else {
 				//direction and distance
-				gravity_force = m1->position - m2->position;
+				gravity_force = (m1->position - m2->position).normalize();
 				distance = gravity_force.distance();
 				//acceleration force = G*(m1*m2)/r^2
 				//F = ma
-				//a = F/m
 				gravity_force *= (G * (m1->mass * m2->mass) / (distance * distance));
 				m2->accumulator += gravity_force;
 				m1->accumulator += (gravity_force * -1);
@@ -75,12 +75,12 @@ void FrogIntegrator::leap(std::list<PhysicsComponent*>::iterator _iterator, std:
 
 
 	//leapfrog integration
-	
+	//https://en.wikipedia.org/wiki/Leapfrog_integration
 	
 	while (_iterator != _end) {
 		PhysicsComponent* p = *_iterator;
-		if (!p->is_static) {
-			p->accumulator /= p->mass;
+		if (!p->is_static) {			
+			p->accumulator /= p->mass;// F/m=a
 			//new pos = curr pos + curr vel * dt + (1/2)*(accel)*(dt*dt)
 			p->position = (p->position + (p->velocity * _dt) + (p->acceleration * 0.5f * _dt * _dt));
 			//new vel = curr vel + (accel accumulator)*0.5*dt
@@ -88,6 +88,7 @@ void FrogIntegrator::leap(std::list<PhysicsComponent*>::iterator _iterator, std:
 
 			//move acceleration values and reset accumulator for next iteration
 			p->acceleration = p->accumulator;
+			
 			p->accumulator = fvector();
 
 			//set parent screen position from new world position

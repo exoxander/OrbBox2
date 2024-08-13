@@ -38,11 +38,11 @@ public:
 		GameObject* m2 = game_manager.create_game_object("mass_2");
 
 		m1->insert_component(new DisplayComponent(0, m1));
-		m1->insert_component(new PhysicsComponent(1, m1, 100000, fvector(500, 400),fvector(4,2)));
+		m1->insert_component(new PhysicsComponent(1, m1, 100000, fvector(500, 400),fvector(-10,6)));
 		m1->object_components[1]->on_create();
 
 		m2->insert_component(new DisplayComponent(0, m2));
-		m2->insert_component(new PhysicsComponent(1, m2, 1000000000, fvector(600, 500),fvector(-.1,.2)));
+		m2->insert_component(new PhysicsComponent(1, m2, 100000000, fvector(600, 500),fvector(-.1,.2)));
 		m2->object_components[1]->on_create();
 
 		return true;
