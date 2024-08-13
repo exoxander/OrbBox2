@@ -1,5 +1,4 @@
 //#include "GameObject.h"
-#include <vector>
 
 //return the first component which matches the given name
 /*
