@@ -52,10 +52,7 @@ void FrogIntegrator::leap(std::list<PhysicsComponent*>::iterator _iterator, std:
 			float distance = 0;
 			PhysicsComponent* m2 = *matrix_inner;
 
-			if (matrix_outer == matrix_inner || !(m1->get_parent()->state == ObjectState::alive && m2->get_parent()->state == ObjectState::alive)) {
-				//vector invalid, done on self or involves a non-living object
-			}
-			else {
+			if (matrix_outer != matrix_inner && (m1->get_parent()->state == ObjectState::alive && m2->get_parent()->state == ObjectState::alive)) {
 				//direction and distance
 				gravity_force = (m1->position - m2->position);
 				distance = gravity_force.distance();
