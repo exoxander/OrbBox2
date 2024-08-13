@@ -1,5 +1,6 @@
 #pragma once
 #include "GameComponent.h"
+
 //forward declare
 class GameManager;
 class Quad;
@@ -31,5 +32,6 @@ public:
 		tree_owner = nullptr;
 	};
 
+	GameComponent* get_component_by_name(const char* _name);
 	void insert_component(GameComponent* _comp) { object_components.push_back(_comp); }
 };

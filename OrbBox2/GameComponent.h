@@ -22,10 +22,19 @@ public:
 
 class DisplayComponent : public GameComponent {
 protected:
+	int meta;
 public:
-	DisplayComponent(uint8_t _id, GameObject* _pnt) : GameComponent(_id, _pnt) {};
+	DisplayComponent(uint8_t _id, GameObject* _pnt, int _meta = 10, bool _show = true) : GameComponent(_id, _pnt) { meta = _meta; show = _show; };
+	bool show;
 	virtual void draw();
-	void on_frame() { draw(); };
+	void on_frame() { if(show) draw(); };
+};
+
+class ButtonComponent : public GameComponent {
+protected:
+public:
+	bool check_clicked();
+	void on_frame() override;
 };
 
 struct Animation {
@@ -92,7 +101,7 @@ public:
 	}
 	const char* get_name() { return "simple_sprite_component"; };
 	void draw() override;
-	void on_frame() override { draw(); }
+	//void on_frame() override { if(show) draw(); }
 };
 
 class FollowMouseComponent : public GameComponent {
@@ -107,6 +116,6 @@ class OnMouseDownDebugDraw : public GameComponent {
 protected:
 	bool is_active;
 public:
-	OnMouseDownDebugDraw(uint8_t _id, GameObject* _pnt) : GameComponent(_id, _pnt) {}
+	OnMouseDownDebugDraw(uint8_t _id, GameObject* _pnt) : GameComponent(_id, _pnt) { is_active = true; }
 	void on_frame() override;
 };

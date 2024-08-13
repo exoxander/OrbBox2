@@ -1,6 +1,6 @@
 #pragma once
 #include "olcPixelGameEngine.h"
-#include "GameObject.h"
+#include "GameObject.cpp"
 //forward declare
 class PGE;
 

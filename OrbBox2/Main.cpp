@@ -39,19 +39,19 @@ public:
 		GameObject* m3 = game_manager.create_game_object("mass_3");
 		GameObject* m4 = game_manager.create_game_object("mass_4");
 
-		m1->insert_component(new DisplayComponent(0, m1));
+		m1->insert_component(new DisplayComponent(0, m1,5));
 		m1->insert_component(new PhysicsComponent(1, m1, 100000000, fvector(200, 200),fvector(0,5)));
 		m1->object_components[1]->on_create();
 
-		m2->insert_component(new DisplayComponent(0, m2));
-		m2->insert_component(new PhysicsComponent(1, m2, 1000000000, fvector(800, 400),fvector(0,0)));
+		m2->insert_component(new DisplayComponent(0, m2,10));
+		m2->insert_component(new PhysicsComponent(1, m2, 1000000000, fvector(800, 400),fvector(0,-.5)));
 		m2->object_components[1]->on_create();
 
-		m3->insert_component(new DisplayComponent(0, m3));
-		m3->insert_component(new PhysicsComponent(1, m3, 1000000000, fvector(150, 200), fvector(0,0)));
+		m3->insert_component(new DisplayComponent(0, m3,10));
+		m3->insert_component(new PhysicsComponent(1, m3, 1000000000, fvector(150, 200), fvector(1,0)));
 		m3->object_components[1]->on_create();
 
-		m4->insert_component(new DisplayComponent(0, m4));
+		m4->insert_component(new DisplayComponent(0, m4,5));
 		m4->insert_component(new PhysicsComponent(1, m4, 10000000, fvector(850, 400), fvector(0, -3)));
 		m4->object_components[1]->on_create();
 
@@ -84,13 +84,12 @@ public:
 					gc->on_frame();
 					std::advance(component_iterator, 1);
 				}
-
 				std::advance(object_iterator, 1);
 			}
 
+			//on step
 			game_manager.step();
 		}
-		
 		return true;
 	}
 };
@@ -124,7 +123,7 @@ void Camera::move_view(PGE* _pge_ptr) {
 
 void DisplayComponent::draw() {
 	PGE* olc_pge = parent->game_manager->olc_pge;
-	olc_pge->DrawCircle(parent->screen_position.x, parent->screen_position.y, 5, olc::CYAN);
+	olc_pge->DrawCircle(parent->screen_position.x, parent->screen_position.y, meta, olc::CYAN);
 	if (parent->game_manager->game_options.object_name_debug_draw) {
 		olc_pge->DrawString(parent->screen_position.x, parent->screen_position.y, parent->name, olc::WHITE);
 	}
@@ -145,18 +144,22 @@ void FollowMouseComponent::on_frame() {
 
 void OnMouseDownDebugDraw::on_frame() {
 	PGE* olc_pge = parent->game_manager->olc_pge;
-	if (olc_pge->GetMouse(0).bHeld) {
-		if (!is_active) {
-			is_active = true;
-			parent->game_manager->game_options.object_name_debug_draw = true;
+	if (olc_pge->GetMouse(0).bPressed) {
+
+		//gross, but effective
+		DisplayComponent* d = dynamic_cast<DisplayComponent*>(parent->get_component_by_name("simple_sprite_component"));
+		if(d != nullptr) {			
+			if (!is_active) {
+				is_active = true;
+				d->show = true;
+			}
+			else {
+				is_active = false;
+				d->show = false;
+			}
 		}
 	}
-	else {
-		if (is_active) {
-			is_active = false;
-			parent->game_manager->game_options.object_name_debug_draw = false;
-		}
-	}
+	
 }
 
 void PhysicsComponent::register_component() {
