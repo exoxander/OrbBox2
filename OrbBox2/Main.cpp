@@ -36,14 +36,19 @@ public:
 		//mass objects
 		GameObject* m1 = game_manager.create_game_object("mass_1");
 		GameObject* m2 = game_manager.create_game_object("mass_2");
+		GameObject* m3 = game_manager.create_game_object("mass_3");
 
 		m1->insert_component(new DisplayComponent(0, m1));
-		m1->insert_component(new PhysicsComponent(1, m1, 100000, fvector(500, 400),fvector(-10,6)));
+		m1->insert_component(new PhysicsComponent(1, m1, 1000000, fvector(200, 200),fvector(0,0)));
 		m1->object_components[1]->on_create();
 
 		m2->insert_component(new DisplayComponent(0, m2));
-		m2->insert_component(new PhysicsComponent(1, m2, 100000000, fvector(600, 500),fvector(-.1,.2)));
+		m2->insert_component(new PhysicsComponent(1, m2, 100000, fvector(400, 400),fvector(0,-.2)));
 		m2->object_components[1]->on_create();
+
+		m3->insert_component(new DisplayComponent(0, m3));
+		m3->insert_component(new PhysicsComponent(1, m3, 10000000, fvector(150, 200), fvector(0,0)));
+		m3->object_components[1]->on_create();
 
 		return true;
 	}

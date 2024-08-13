@@ -57,8 +57,9 @@ void FrogIntegrator::leap(std::list<PhysicsComponent*>::iterator _iterator, std:
 			}
 			else {
 				//direction and distance
-				gravity_force = (m1->position - m2->position).normalize();
+				gravity_force = (m1->position - m2->position);
 				distance = gravity_force.distance();
+				gravity_force.normalize();
 				//acceleration force = G*(m1*m2)/r^2
 				//F = ma
 				gravity_force *= (G * (m1->mass * m2->mass) / (distance * distance));
@@ -81,13 +82,16 @@ void FrogIntegrator::leap(std::list<PhysicsComponent*>::iterator _iterator, std:
 		PhysicsComponent* p = *_iterator;
 		if (!p->is_static) {			
 			p->accumulator /= p->mass;// F/m=a
-			//new pos = curr pos + curr vel * dt + (1/2)*(accel)*(dt*dt)
-			p->position = (p->position + (p->velocity * _dt) + (p->acceleration * 0.5f * _dt * _dt));
-			//new vel = curr vel + (accel accumulator)*0.5*dt
-			p->velocity = (p->velocity + (p->acceleration + p->accumulator) * 0.5f * _dt);
-
+			fvector v_half = fvector();
+			//kick-drift-kick leap frog
+			// v[i+.5] = v[i] + a[i]*(dt/2)
+			v_half = p->velocity + (p->acceleration * (_dt / 2));
+			// x[i+1] = x[i] + v[i+.5]*dt
+			p->position = p->position + (v_half * _dt);
+			// v[i+1] = v[i+.5]+a[i+1]*(dt/2)
+			p->velocity = v_half + (p->accumulator * (_dt / 2));
 			//move acceleration values and reset accumulator for next iteration
-			p->acceleration = p->accumulator;
+			p->acceleration = (p->accumulator + fvector());
 			
 			p->accumulator = fvector();
 
