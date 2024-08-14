@@ -28,8 +28,8 @@ public:
 		// Called once at the start, so create things here
 
 		GameObject* test_object = game_manager.create_game_object("mouse_test_object");
-		//test_object->insert_component(new SimpleSpriteComponent(0, test_object,64,64));
-		test_object->insert_component(new BoxDrawComponent(0, test_object, 64, 32));
+		test_object->insert_component(new SimpleSpriteComponent(0, test_object,64,64));
+		//test_object->insert_component(new BoxDrawComponent(0, test_object, 64, 32));
 		test_object->insert_component(new FollowMouseComponent(1, test_object));
 		test_object->insert_component(new OnMouseDownDebugDraw(2, test_object));
 
@@ -43,6 +43,7 @@ public:
 		ButtonAction* btn_act = new TogglePhysicsAction(btn_comp);
 		btn_comp->set_action(btn_act);
 		physics_toggle->insert_component(btn_comp);
+		physics_toggle->insert_component(new NameDrawComponent(2, physics_toggle, "Physics Toggle Button"));
 
 		//mass objects
 		GameObject* m1 = game_manager.create_game_object("mass_1");
@@ -140,9 +141,17 @@ void DisplayComponent::draw() {
 	}
 }
 
+void NameDrawComponent::draw() {
+	PGE* olc_pge = parent->game_manager->olc_pge;
+	olc_pge->DrawString(parent->screen_position.x, parent->screen_position.y, parent_name, olc::WHITE);
+}
+
 void BoxDrawComponent::draw() {
 	PGE* olc_pge = parent->game_manager->olc_pge;
 	olc_pge->DrawRect(parent->screen_position.x - (width/2), parent->screen_position.y - (height/2), width, height);
+	if (parent->game_manager->game_options.object_name_debug_draw) {
+		olc_pge->DrawString(parent->screen_position.x, parent->screen_position.y, parent->name, olc::WHITE);
+	}
 }
 
 void SimpleSpriteComponent::draw(){
@@ -174,8 +183,7 @@ void OnMouseDownDebugDraw::on_frame() {
 				d->show = false;
 			}
 		}
-	}
-	
+	}	
 }
 
 void PhysicsComponent::register_component() {

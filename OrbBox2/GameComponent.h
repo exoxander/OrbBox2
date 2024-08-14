@@ -128,7 +128,17 @@ public:
 	}
 	const char* get_name() { return "simple_sprite_component"; };
 	void draw() override;
-	//void on_frame() override { if(show) draw(); }
+	void on_frame() override { if(show) draw(); }
+};
+
+class NameDrawComponent : public DisplayComponent {
+protected:
+	const char* parent_name;
+public:
+	NameDrawComponent(uint8_t _id, GameObject* _pnt, const char* _alt = nullptr) : DisplayComponent(_id, _pnt) { 
+		parent_name = _alt == nullptr ? ":P" : _alt;
+	};
+	void draw() override;
 };
 
 class BoxDrawComponent : public DisplayComponent {
@@ -139,7 +149,7 @@ public:
 	BoxDrawComponent(uint8_t _id, GameObject* _pnt, int _width, int _height) : DisplayComponent(_id, _pnt) {
 		width = _width;
 		height = _height;
-	}
+	};
 	void draw() override;
 };
 
@@ -155,6 +165,6 @@ class OnMouseDownDebugDraw : public GameComponent {
 protected:
 	bool is_active;
 public:
-	OnMouseDownDebugDraw(uint8_t _id, GameObject* _pnt) : GameComponent(_id, _pnt) { is_active = true; }
+	OnMouseDownDebugDraw(uint8_t _id, GameObject* _pnt) : GameComponent(_id, _pnt) { is_active = true; };
 	void on_frame() override;
 };
