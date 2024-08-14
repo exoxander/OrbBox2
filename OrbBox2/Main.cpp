@@ -33,6 +33,17 @@ public:
 		test_object->insert_component(new FollowMouseComponent(1, test_object));
 		test_object->insert_component(new OnMouseDownDebugDraw(2, test_object));
 
+		//test button(s)
+		GameObject* physics_toggle = game_manager.create_game_object("physics_toggle_button");
+		physics_toggle->screen_position = ivector(100, 100);
+		physics_toggle->insert_component(new BoxDrawComponent(0, physics_toggle, 64, 32));
+
+		//this is convoluted, streamline in structure or with helpers later
+		ButtonComponent* btn_comp = new ButtonComponent(1, physics_toggle, 64, 32, nullptr);
+		ButtonAction* btn_act = new TogglePhysicsAction(btn_comp);
+		btn_comp->set_action(btn_act);
+		physics_toggle->insert_component(btn_comp);
+
 		//mass objects
 		GameObject* m1 = game_manager.create_game_object("mass_1");
 		GameObject* m2 = game_manager.create_game_object("mass_2");
@@ -131,7 +142,7 @@ void DisplayComponent::draw() {
 
 void BoxDrawComponent::draw() {
 	PGE* olc_pge = parent->game_manager->olc_pge;
-	olc_pge->DrawRect(parent->screen_position.x, parent->screen_position.y, width, height);
+	olc_pge->DrawRect(parent->screen_position.x - (width/2), parent->screen_position.y - (height/2), width, height);
 }
 
 void SimpleSpriteComponent::draw(){
@@ -191,10 +202,30 @@ GameComponent* GameObject::get_component_by_name(const char* _name) {
 
 void TogglePhysicsAction::act() {
 	if (is_active) {
-		owner->get_parent()->game_manager->game_options.pause_physics = false;
+		btn_owner->get_parent()->game_manager->game_options.pause_physics = false;
 	}
 	else {
-		owner->get_parent()->game_manager->game_options.pause_physics = true;
+		btn_owner->get_parent()->game_manager->game_options.pause_physics = true;
 	}
 	is_active = !is_active;
+}
+
+bool ButtonComponent::check_clicked() {
+	PGE* olc_pge = parent->game_manager->olc_pge;
+	if (olc_pge->GetMouse(0).bPressed) {
+		int half_w = width / 2;
+		int half_h = height / 2;
+		ivector mouse_pos = ivector(olc_pge->GetMouseX(), olc_pge->GetMouseY());
+
+		//if in x range
+		if (mouse_pos.x > parent->screen_position.x - half_w && mouse_pos.x < parent->screen_position.x + half_w) {
+			//std::cout << "click in x range" << std::endl;
+			//if in y range
+			if (mouse_pos.y > parent->screen_position.y - half_h && mouse_pos.y < parent->screen_position.y + half_h) {
+				//std::cout << "button click registered" << std::endl;
+				return true;
+			}
+		}
+	}
+	return false;
 }

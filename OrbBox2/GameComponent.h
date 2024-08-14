@@ -30,6 +30,7 @@ public:
 	void on_frame() { if(show) draw(); };
 };
 
+class ButtonComponent;
 class ButtonAction {
 protected:
 	bool is_active;
@@ -57,8 +58,10 @@ public:
 		height = _height;
 		action = _action;
 	}
+	void set_action(ButtonAction* _action) { action = _action; };
 	bool check_clicked();
-	void on_frame() override { if (check_clicked()) action->act(); };
+	void on_frame() override { if (check_clicked()) { action->act(); }; };
+
 };
 
 struct Animation {
