@@ -36,45 +36,45 @@ void FrogIntegrator::leap(std::list<PhysicsComponent*>::iterator _iterator, std:
 	float G = .000001;
 	//index [a,b] = a + b*size
 
-	if (!_pause) {
 		//iterate over all registered physics objects
 	//physics
 	//compute distance and forces for each interaction pair only once
-		while (matrix_outer != _end) {
-			fvector gravity_force = fvector(0, 0);
-			matrix_inner = matrix_outer;
-			PhysicsComponent* m1 = *matrix_outer;
+	while (matrix_outer != _end && !_pause) {
+		fvector gravity_force = fvector(0, 0);
+		matrix_inner = matrix_outer;
+		PhysicsComponent* m1 = *matrix_outer;
 
-			while (matrix_inner != _end) {
-				float distance = 0;
-				PhysicsComponent* m2 = *matrix_inner;
+		while (matrix_inner != _end) {
+			float distance = 0;
+			PhysicsComponent* m2 = *matrix_inner;
 
-				//check for valid interaction pair
-				if (matrix_outer != matrix_inner && (m1->get_parent()->state == ObjectState::alive && m2->get_parent()->state == ObjectState::alive)) {
-					//direction and distance
-					gravity_force = (m2->position - m1->position);
-					distance = gravity_force.distance();
-					gravity_force.normalize();
-					//acceleration force = G*(m1*m2)/r^2
-					gravity_force *= (G * (m1->mass * m2->mass) / (distance * distance));
+			//check for valid interaction pair
+			if (matrix_outer != matrix_inner && (m1->get_parent()->state == ObjectState::alive && m2->get_parent()->state == ObjectState::alive)) {
+				//direction and distance
+				gravity_force = (m2->position - m1->position);
+				distance = gravity_force.distance();
+				gravity_force.normalize();
+				//acceleration force = G*(m1*m2)/r^2
+				gravity_force *= (G * (m1->mass * m2->mass) / (distance * distance));
 
-					//force applied to current object
-					m1->accumulator += gravity_force;
-					//inverse force applied to other body
-					m2->accumulator += (gravity_force * -1);
-				}
-				std::advance(matrix_inner, 1);
+				//force applied to current object
+				m1->accumulator += gravity_force;
+				//inverse force applied to other body
+				m2->accumulator += (gravity_force * -1);
 			}
-			std::advance(matrix_outer, 1);
+			std::advance(matrix_inner, 1);
 		}
+		std::advance(matrix_outer, 1);
+	}
 
 
-		//leapfrog integration
-		//https://en.wikipedia.org/wiki/Leapfrog_integration
+	//leapfrog integration
+	//https://en.wikipedia.org/wiki/Leapfrog_integration
 
-		while (_iterator != _end) {
-			PhysicsComponent* p = *_iterator;
-			if (!p->is_static) {
+	while (_iterator != _end) {
+		PhysicsComponent* p = *_iterator;
+		if (!p->is_static) {
+			if (!_pause) {
 				p->accumulator /= p->mass;// F/m=a
 				fvector v_half = fvector();
 				//kick-drift-kick leap frog
@@ -88,14 +88,13 @@ void FrogIntegrator::leap(std::list<PhysicsComponent*>::iterator _iterator, std:
 				p->acceleration = (p->accumulator + fvector());
 
 				p->accumulator = fvector();
-
-				//set parent screen position from new world position
-				p->get_parent()->screen_position = p->get_parent()->game_manager->view.world_to_screen(p->position);
 			}
-			else {
-				p->position = p->get_parent()->game_manager->view.screen_to_world(p->get_parent()->screen_position);
-			}
-			std::advance(_iterator, 1);
+			//set parent screen position from new world position
+			p->get_parent()->screen_position = p->get_parent()->game_manager->view.world_to_screen(p->position);
 		}
+		else {
+			p->position = p->get_parent()->game_manager->view.screen_to_world(p->get_parent()->screen_position);
+		}
+		std::advance(_iterator, 1);
 	}
 }

@@ -31,10 +31,10 @@ public:
 		test_object->insert_component(new SimpleSpriteComponent(0, test_object,64,64));
 		//test_object->insert_component(new BoxDrawComponent(0, test_object, 64, 32));
 		test_object->insert_component(new FollowMouseComponent(1, test_object));
-		test_object->insert_component(new OnMouseDownDebugDraw(2, test_object));
+		//test_object->insert_component(new OnMouseDownDebugDraw(2, test_object));
 
 		//test button(s)
-		GameObject* physics_toggle = game_manager.create_game_object("physics_toggle_button");
+		GameObject* physics_toggle = game_manager.create_game_object("toggle_physics");
 		physics_toggle->screen_position = ivector(100, 100);
 		physics_toggle->insert_component(new BoxDrawComponent(0, physics_toggle, 64, 32));
 
@@ -109,7 +109,7 @@ public:
 int main()
 {
 	PGE game;
-	if (game.Construct(1280, 720, 1, 1))
+	if (game.Construct(1280, 720, 1, 1, false, true))
 		game.Start();
 
 	return 0;
