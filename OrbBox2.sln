@@ -5,6 +5,11 @@ VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OrbBox2", "OrbBox2\OrbBox2.vcxproj", "{A039494C-36C6-4AEA-85EE-6AA6A69CCA17}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "art", "art", "{FBD4F9B5-4882-45EF-B3E7-E3D0689892A2}"
+	ProjectSection(SolutionItems) = preProject
+		default.png = default.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64

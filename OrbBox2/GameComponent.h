@@ -30,11 +30,35 @@ public:
 	void on_frame() { if(show) draw(); };
 };
 
-class ButtonComponent : public GameComponent {
+class ButtonAction {
+protected:
+	bool is_active;
+	ButtonComponent* owner;
+public:
+	ButtonAction(ButtonComponent* _owner, bool _active = false) { owner = _owner; is_active = _active; }
+	virtual void act() {};
+};
+
+class TogglePhysicsAction : public ButtonAction {
 protected:
 public:
+	TogglePhysicsAction(ButtonComponent* _owner, bool _active = false) : ButtonAction(_owner, _active) {};
+	void act() override;
+};
+
+class ButtonComponent : public GameComponent {
+protected:
+	int width;
+	int height;
+	ButtonAction* action;
+public:
+	ButtonComponent(uint8_t _id, GameObject* _pnt, int _width, int _height, ButtonAction* _action) :GameComponent(_id, _pnt) {
+		width = _width;
+		height = _height;
+		action = _action;
+	}
 	bool check_clicked();
-	void on_frame() override;
+	void on_frame() override { if (check_clicked()) action->act(); };
 };
 
 struct Animation {
@@ -102,6 +126,17 @@ public:
 	const char* get_name() { return "simple_sprite_component"; };
 	void draw() override;
 	//void on_frame() override { if(show) draw(); }
+};
+
+class BoxDrawComponent : public DisplayComponent {
+protected:
+	int width;
+	int height;
+public:
+	BoxDrawComponent(uint8_t _id, GameObject* _pnt, int _width, int _height) : DisplayComponent(_id, _pnt) {
+
+	}
+	void draw() override;
 };
 
 class FollowMouseComponent : public GameComponent {

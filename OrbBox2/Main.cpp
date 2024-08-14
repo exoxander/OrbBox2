@@ -182,3 +182,13 @@ GameComponent* GameObject::get_component_by_name(const char* _name) {
 
 	return nullptr;
 }
+
+void TogglePhysicsAction::act() {
+	if (is_active) {
+		owner->get_parent()->game_manager->game_options.pause_physics = false;
+	}
+	else {
+		owner->get_parent()->game_manager->game_options.pause_physics = true;
+	}
+	is_active = !is_active;
+}
