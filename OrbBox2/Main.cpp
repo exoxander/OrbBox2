@@ -28,7 +28,8 @@ public:
 		// Called once at the start, so create things here
 
 		GameObject* test_object = game_manager.create_game_object("mouse_test_object");
-		test_object->insert_component(new SimpleSpriteComponent(0, test_object,64,64));
+		//test_object->insert_component(new SimpleSpriteComponent(0, test_object,64,64));
+		test_object->insert_component(new BoxDrawComponent(0, test_object, 64, 32));
 		test_object->insert_component(new FollowMouseComponent(1, test_object));
 		test_object->insert_component(new OnMouseDownDebugDraw(2, test_object));
 
@@ -126,6 +127,11 @@ void DisplayComponent::draw() {
 	if (parent->game_manager->game_options.object_name_debug_draw) {
 		olc_pge->DrawString(parent->screen_position.x, parent->screen_position.y, parent->name, olc::WHITE);
 	}
+}
+
+void BoxDrawComponent::draw() {
+	PGE* olc_pge = parent->game_manager->olc_pge;
+	olc_pge->DrawRect(parent->screen_position.x, parent->screen_position.y, width, height);
 }
 
 void SimpleSpriteComponent::draw(){

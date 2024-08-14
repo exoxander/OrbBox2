@@ -33,9 +33,9 @@ public:
 class ButtonAction {
 protected:
 	bool is_active;
-	ButtonComponent* owner;
+	ButtonComponent* btn_owner;
 public:
-	ButtonAction(ButtonComponent* _owner, bool _active = false) { owner = _owner; is_active = _active; }
+	ButtonAction(ButtonComponent* _owner, bool _active = false) { btn_owner = _owner; is_active = _active; };
 	virtual void act() {};
 };
 
@@ -134,7 +134,8 @@ protected:
 	int height;
 public:
 	BoxDrawComponent(uint8_t _id, GameObject* _pnt, int _width, int _height) : DisplayComponent(_id, _pnt) {
-
+		width = _width;
+		height = _height;
 	}
 	void draw() override;
 };
